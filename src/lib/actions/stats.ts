@@ -130,3 +130,10 @@ export async function getLastMatch(): Promise<Match | null> {
 
   return (data as unknown as Match) ?? null;
 }
+
+export async function getMaxMatchesPlayed(): Promise<number> {
+  const leaderboard = await getLeaderboard();
+  if (leaderboard.length === 0) return 0;
+  return Math.max(...leaderboard.map((s) => s.matches_played));
+}
+
