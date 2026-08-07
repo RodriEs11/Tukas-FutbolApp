@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Avatar } from '@/components/ui/Avatar';
-import { Camera, Save, Mail, Lock } from 'lucide-react';
+import { Camera, Image as ImageIcon, Save, Mail, Lock } from 'lucide-react';
 import type { UserProfile } from '@/lib/types/database';
 import { 
   updateProfileBasicInfo, 
@@ -125,25 +125,50 @@ export function EditProfileForm({ user }: EditProfileFormProps) {
 
       {/* Avatar Section */}
       <Card>
-        <div className="flex flex-col items-center p-4">
-          <div className="relative group cursor-pointer">
-            <Avatar player={user} size="lg" className="mb-2 h-24 w-24 text-3xl" />
-            <label 
-              htmlFor="avatar-upload" 
-              className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
-            >
-              <Camera className="text-white" size={24} />
-            </label>
-            <input 
-              id="avatar-upload" 
-              type="file" 
-              accept="image/*"
-              className="hidden" 
-              onChange={handleUploadAvatar}
-              disabled={loading}
-            />
+        <div className="flex flex-col items-center p-6">
+          <Avatar player={user} size="lg" className="mb-4 h-24 w-24 text-3xl" />
+          
+          <div className="flex gap-4 w-full max-w-xs">
+            <div className="flex-1">
+              <label 
+                htmlFor="avatar-upload-gallery" 
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-md cursor-pointer transition-colors text-sm font-medium"
+              >
+                <ImageIcon size={18} />
+                Galería
+              </label>
+              <input 
+                id="avatar-upload-gallery" 
+                type="file" 
+                accept="image/*"
+                className="hidden" 
+                onChange={handleUploadAvatar}
+                disabled={loading}
+              />
+            </div>
+            
+            <div className="flex-1">
+              <label 
+                htmlFor="avatar-upload-camera" 
+                className="flex items-center justify-center gap-2 w-full px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md cursor-pointer transition-colors text-sm font-medium"
+              >
+                <Camera size={18} />
+                Cámara
+              </label>
+              <input 
+                id="avatar-upload-camera" 
+                type="file" 
+                accept="image/*"
+                capture="user"
+                className="hidden" 
+                onChange={handleUploadAvatar}
+                disabled={loading}
+              />
+            </div>
           </div>
-          <p className="text-sm text-muted-foreground mt-2">Haz clic en la imagen para cambiarla</p>
+          <p className="text-xs text-muted-foreground mt-4 text-center">
+            Sube una imagen de tu galería o toma una foto
+          </p>
         </div>
       </Card>
 
