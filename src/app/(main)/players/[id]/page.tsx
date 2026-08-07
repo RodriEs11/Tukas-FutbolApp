@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { getPlayer } from '@/lib/actions/players';
 import { getPlayerStats } from '@/lib/actions/stats';
 import { getPlayerMatches } from '@/lib/actions/matches';
+import { getCurrentUser } from '@/lib/actions/auth';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -19,6 +20,7 @@ import {
 } from 'lucide-react';
 import { BackButton } from '@/components/ui/BackButton';
 import { PlayerMatchList } from '@/components/players/PlayerMatchList';
+import { EditPlayerModal } from '@/components/players/EditPlayerModal';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -38,13 +40,16 @@ export default async function PlayerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [player, stats, matches] = await Promise.all([
+  const [player, stats, matches, currentUser] = await Promise.all([
     getPlayer(id),
     getPlayerStats(id),
     getPlayerMatches(id),
+    getCurrentUser(),
   ]);
 
   if (!player) notFound();
+
+  const isAdmin = currentUser?.role === 'admin';
 
   const winRate =
     stats && stats.matches_played > 0
@@ -53,21 +58,24 @@ export default async function PlayerDetailPage({
 
   return (
     <PageContainer>
-      {/* Top bar: Back + View Card */}
+      {/* Top bar: Back + Actions */}
       <div className="flex items-center justify-between mb-6">
         <BackButton fallbackHref="/players" className="" />
-        <Link
-          href={`/players/${id}/card`}
-          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
-          style={{
-            color: '#d4a853',
-            backgroundColor: 'rgba(212, 168, 83, 0.1)',
-            borderColor: 'rgba(212, 168, 83, 0.3)',
-          }}
-        >
-          <Star size={14} />
-          Ver Carta
-        </Link>
+        <div className="flex items-center gap-2">
+          {isAdmin && <EditPlayerModal player={player} />}
+          <Link
+            href={`/players/${id}/card`}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
+            style={{
+              color: '#d4a853',
+              backgroundColor: 'rgba(212, 168, 83, 0.1)',
+              borderColor: 'rgba(212, 168, 83, 0.3)',
+            }}
+          >
+            <Star size={14} />
+            Ver Carta
+          </Link>
+        </div>
       </div>
 
       {/* Player Header */}
