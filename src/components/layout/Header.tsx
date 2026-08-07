@@ -15,7 +15,7 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
   '/players': 'Jugadores',
   '/matches': 'Partidos',
-  '/fields': 'Canchas',
+  // '/fields': 'Canchas',
   '/scorers': 'Goleadores',
   '/paternidades': 'Paternidades',
   '/profile': 'Mi Perfil',

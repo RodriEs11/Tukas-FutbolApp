@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/Input';
 import { createMatch } from '@/lib/actions/matches';
 import { getFields } from '@/lib/actions/fields';
 import type { Field } from '@/lib/types/database';
-import { CalendarDays, FileText, MapPin, Clock } from 'lucide-react';
+import { CalendarDays, FileText, Clock, MapPin } from 'lucide-react';
 import { BackButton } from '@/components/ui/BackButton';
 
 const TIME_OPTIONS = [
@@ -21,16 +21,19 @@ const TIME_OPTIONS = [
 export default function NewMatchPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [fields, setFields] = useState<Field[]>([]);
+  const [field, setField] = useState<Field | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    async function loadFields() {
+    async function loadField() {
       const fetchedFields = await getFields();
-      setFields(fetchedFields);
+      if (fetchedFields.length > 0) {
+        setField(fetchedFields[0]);
+      }
     }
-    loadFields();
+    loadField();
   }, []);
+
 
   async function handleSubmit(formData: FormData) {
     setLoading(true);
@@ -120,31 +123,23 @@ export default function NewMatchPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-muted-foreground mb-1.5">
-                <div className="flex items-center gap-1.5">
-                  <MapPin size={14} />
-                  Cancha (Opcional)
-                </div>
-              </label>
-              <select
-                name="field_id"
-                className="
+            {field && (
+              <div>
+                <label className="block text-sm font-medium text-muted-foreground mb-1.5">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin size={14} />
+                    Cancha
+                  </div>
+                </label>
+                <div className="
                   w-full px-4 py-2.5 rounded-xl
-                  bg-background border border-border text-foreground
-                  transition-all duration-200
-                  focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500
-                  hover:border-border-hover
-                "
-              >
-                <option value="">Selecciona una cancha...</option>
-                {fields.map((field) => (
-                  <option key={field.id} value={field.id}>
-                    {field.name} {field.location ? `(${field.location})` : ''}
-                  </option>
-                ))}
-              </select>
-            </div>
+                  bg-background/50 border border-border text-foreground
+                  cursor-not-allowed opacity-80 flex items-center
+                ">
+                  {field.name} {field.location ? `(${field.location})` : ''}
+                </div>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1.5">
