@@ -2,18 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Trophy, MapPin, User, Trophy as Logo, Target, Swords } from 'lucide-react';
+import { Home, Users, Trophy, MapPin, User, Trophy as Logo } from 'lucide-react';
 
 const getNavItems = (isAdmin: boolean) => {
   const items = [
     { href: '/dashboard', label: 'Inicio', icon: Home },
     { href: '/players', label: 'Jugadores', icon: Users },
-    { href: '/scorers', label: 'Goleadores', icon: Target },
-    { href: '/paternidades', label: 'Paternidades', icon: Swords },
     { href: '/matches', label: 'Partidos', icon: Trophy },
   ];
   if (isAdmin) {
-    // items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
+    items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
   }
   items.push({ href: '/profile', label: 'Perfil', icon: User });
   return items;

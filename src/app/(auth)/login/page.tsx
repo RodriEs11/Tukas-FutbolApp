@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Trophy, Mail, Lock } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
@@ -26,11 +25,11 @@ export default function LoginPage() {
     <div className="animate-fade-in">
       {/* Logo */}
       <div className="flex flex-col items-center mb-8">
-        <div className="relative w-24 h-24 mb-4 rounded-full overflow-hidden shadow-2xl shadow-emerald-500/20 border-2 border-emerald-500/30">
-          <Image src="/Logo.jpeg" alt="Las Tukas Logo" fill className="object-cover" priority />
+        <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-emerald-600 shadow-xl shadow-emerald-500/30 mb-4">
+          <Trophy size={28} className="text-white" />
         </div>
         <h1 className="text-3xl font-bold text-foreground tracking-tight">
-          Las Tukas
+          Tukas
         </h1>
         <p className="text-muted-foreground mt-1 text-sm">
           Gestión de fútbol amateur
