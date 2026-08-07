@@ -15,6 +15,7 @@ const pageTitles: Record<string, string> = {
   '/players': 'Jugadores',
   '/matches': 'Partidos',
   '/fields': 'Canchas',
+  '/scorers': 'Goleadores',
   '/profile': 'Mi Perfil',
 };
 
