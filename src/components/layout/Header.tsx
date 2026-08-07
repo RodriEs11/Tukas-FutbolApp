@@ -67,9 +67,7 @@ export function Header() {
         </div>
         
         <div className="flex items-center gap-1 relative" ref={menuRef}>
-          {loading ? (
-            <div className="h-8 w-24 rounded-full bg-muted animate-pulse" />
-          ) : user || profile ? (
+          {user || profile ? (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium relative z-50"

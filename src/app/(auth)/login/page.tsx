@@ -87,16 +87,7 @@ export default function LoginPage() {
         </form>
       </div>
 
-      {/* Register link */}
-      <p className="text-center mt-6 text-sm text-muted-foreground">
-        ¿No tenés cuenta?{' '}
-        <Link
-          href="/register"
-          className="text-accent hover:text-accent-hover font-medium transition-colors"
-        >
-          Registrate
-        </Link>
-      </p>
+
     </div>
   );
 }
