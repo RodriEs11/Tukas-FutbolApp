@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
 
 
   // Auth routes: redirect to dashboard if already authenticated
-  const authPaths = ['/login', '/register'];
+  const authPaths = ['/login'];
   const isAuthRoute = authPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );
