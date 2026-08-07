@@ -4,16 +4,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Users, Trophy, MapPin, User, Trophy as Logo } from 'lucide-react';
 
-const navItems = [
-  { href: '/dashboard', label: 'Inicio', icon: Home },
-  { href: '/players', label: 'Jugadores', icon: Users },
-  { href: '/matches', label: 'Partidos', icon: Trophy },
-  { href: '/fields', label: 'Canchas', icon: MapPin },
-  { href: '/profile', label: 'Perfil', icon: User },
-];
+const getNavItems = (isAdmin: boolean) => {
+  const items = [
+    { href: '/dashboard', label: 'Inicio', icon: Home },
+    { href: '/players', label: 'Jugadores', icon: Users },
+    { href: '/matches', label: 'Partidos', icon: Trophy },
+  ];
+  if (isAdmin) {
+    items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
+  }
+  items.push({ href: '/profile', label: 'Perfil', icon: User });
+  return items;
+};
 
-export function Sidebar() {
+export function Sidebar({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(!!isAdmin);
 
   return (
     <aside className="

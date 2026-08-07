@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Trophy, type LucideIcon } from 'lucide-react';
+import { Home, Users, Trophy, MapPin, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -11,14 +11,21 @@ interface NavItem {
 }
 
 // Modular: agrega nuevas pestañas simplemente agregando un item a este array
-const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Inicio', icon: Home },
-  { href: '/players', label: 'Jugadores', icon: Users },
-  { href: '/matches', label: 'Partidos', icon: Trophy },
-];
+const getNavItems = (isAdmin: boolean): NavItem[] => {
+  const items = [
+    { href: '/dashboard', label: 'Inicio', icon: Home },
+    { href: '/players', label: 'Jugadores', icon: Users },
+    { href: '/matches', label: 'Partidos', icon: Trophy },
+  ];
+  if (isAdmin) {
+    items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
+  }
+  return items;
+};
 
-export function BottomNav() {
+export function BottomNav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(!!isAdmin);
 
   return (
     <nav className="

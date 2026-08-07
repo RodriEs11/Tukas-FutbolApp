@@ -16,12 +16,14 @@ interface MatchTeamAdminProps {
   team: 'A' | 'B';
   teamName: string;
   matchPlayers: MatchPlayer[];
+  allMatchPlayers: MatchPlayer[];
   allPlayers: UserProfile[];
   isAdmin: boolean;
+  isEditing: boolean;
   isPlayed: boolean;
 }
 
-export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlayers, isAdmin, isPlayed }: MatchTeamAdminProps) {
+export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatchPlayers, allPlayers, isAdmin, isEditing, isPlayed }: MatchTeamAdminProps) {
   // Loading states
   const [loadingGoalId, setLoadingGoalId] = useState<string | null>(null);
   const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
@@ -37,9 +39,9 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
     setMounted(true);
   }, []);
 
-  // Players not in this team (might be in the other team, but we allow selection and backend handles it)
+  // Players not in ANY team for this match
   const availablePlayers = allPlayers.filter(
-    (p) => !matchPlayers.some((mp) => mp.player_id === p.id)
+    (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
   );
 
   const filteredPlayers = availablePlayers.filter(p => 
@@ -108,7 +110,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
         </span>
       </div>
 
-      {isAdmin && (
+      {isAdmin && isEditing && (
         <div className="mb-3">
           <Button 
             variant="secondary" 
@@ -152,9 +154,9 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
                     </div>
                     
                     {/* Goal Controls (Next to name) */}
-                    {(mp.goals > 0 || isAdmin) && (
+                    {(mp.goals > 0 || isEditing) && (
                       <div className={`flex items-center gap-2 mx-1 text-${teamColor}-400 flex-shrink-0`}>
-                        {isAdmin && (
+                        {isEditing && (
                           <button 
                             onClick={() => handleUpdateGoals(mp, -1)} 
                             disabled={isGoalLoading || mp.goals === 0} 
@@ -169,7 +171,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
                           <span className="text-[13px] font-bold text-foreground leading-none">{mp.goals}</span>
                         </div>
                         
-                        {isAdmin && (
+                        {isEditing && (
                           <button 
                             onClick={() => handleUpdateGoals(mp, 1)} 
                             disabled={isGoalLoading} 
@@ -183,7 +185,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
                   </div>
                   
                   {/* Delete Control (Far right) */}
-                  {isAdmin && (
+                  {isEditing && (
                     <div className="pl-3 border-l border-border flex-shrink-0">
                       <button 
                         onClick={() => handleRemovePlayer(mp.player_id)} 
