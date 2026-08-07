@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useMemo } from 'react';
 import { getInitials, stringToColor } from '@/lib/utils/helpers';
+import { getCardTier } from '@/lib/utils/rating';
 import type { UserProfile, PlayerStats } from '@/lib/types/database';
 
 interface PlayerCardProps {
@@ -14,6 +15,8 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [transform, setTransform] = useState('');
   const [isHovering, setIsHovering] = useState(false);
+
+  const tier = useMemo(() => getCardTier(rating), [rating]);
 
   const winRate =
     stats && stats.matches_played > 0
@@ -80,13 +83,26 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
   const initials = getInitials(player);
   const bgColor = stringToColor(player.id);
 
+  // Dynamic CSS custom properties based on tier
+  const cardStyle: React.CSSProperties = {
+    '--card-c': tier.color,
+    '--card-c-dark': tier.colorDark,
+    '--card-c-light': tier.colorLight,
+    '--card-c-glow': tier.colorGlow,
+    '--card-bg-start': tier.bgStart,
+    '--card-bg-end': tier.bgEnd,
+    '--card-bg-third': tier.bgThird,
+    '--card-shine-rgb': tier.shineRgb,
+    transform: transform || undefined,
+  } as React.CSSProperties;
+
   return (
     <div
       ref={cardRef}
       className={`player-card animate-card-entrance ${
         isHovering ? 'player-card-tilt' : 'player-card-tilt-reset'
       }`}
-      style={{ transform: transform || undefined }}
+      style={cardStyle}
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -97,14 +113,20 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
       <div className="player-card-shine" />
 
       <div className="player-card-content">
-        {/* Rating */}
+        {/* Rating + Tier label */}
         <div className="self-start">
           {rating !== null ? (
-            <div className="player-card-rating">{rating}</div>
+            <>
+              <div className="player-card-rating">{rating}</div>
+              <div className="player-card-tier-label">{tier.label}</div>
+            </>
           ) : (
-            <div className="player-card-rating player-card-rating-unrated">
-              --
-            </div>
+            <>
+              <div className="player-card-rating player-card-rating-unrated">
+                --
+              </div>
+              <div className="player-card-tier-label">{tier.label}</div>
+            </>
           )}
         </div>
 
