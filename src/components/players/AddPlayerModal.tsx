@@ -112,7 +112,7 @@ export function AddPlayerModal() {
           </div>
 
           <div className="pt-2 flex justify-end gap-3">
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+            <Button type="button" variant="secondary" onClick={() => setIsOpen(false)}>
               Cancelar
             </Button>
             <Button type="submit" isLoading={isLoading}>
