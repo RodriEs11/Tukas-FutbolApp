@@ -13,10 +13,11 @@ export function BackButton({ fallbackHref, className = 'mb-6' }: BackButtonProps
 
   const handleBack = () => {
     // Si hay historial en la misma pestaña y la página anterior era de nuestra app
+    // En navegación interna de Next.js (client-side), document.referrer no se actualiza y puede estar vacío.
     if (
       typeof window !== 'undefined' && 
       window.history.length > 1 && 
-      document.referrer.includes(window.location.host)
+      (!document.referrer || document.referrer.includes(window.location.host))
     ) {
       router.back();
     } else {

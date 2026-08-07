@@ -27,6 +27,44 @@ export async function getMatches(): Promise<Match[]> {
   return (data as unknown as Match[]) || [];
 }
 
+export async function getPlayerMatches(playerId: string): Promise<Match[]> {
+  const supabase = await createClient();
+
+  const { data: playerMatchesData, error: pmError } = await supabase
+    .from('match_players')
+    .select('match_id')
+    .eq('player_id', playerId);
+
+  if (pmError || !playerMatchesData) {
+    console.error('Error fetching player matches IDs:', pmError);
+    return [];
+  }
+
+  const matchIds = playerMatchesData.map(pm => pm.match_id);
+
+  if (matchIds.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('matches')
+    .select(`
+      *,
+      field:fields(*),
+      match_players(
+        *,
+        player:user_profiles(*)
+      )
+    `)
+    .in('id', matchIds)
+    .order('match_date', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching player matches:', error);
+    return [];
+  }
+
+  return (data as unknown as Match[]) || [];
+}
+
 export async function getMatch(id: string): Promise<Match | null> {
   const supabase = await createClient();
 
