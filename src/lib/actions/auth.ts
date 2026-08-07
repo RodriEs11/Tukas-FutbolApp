@@ -57,7 +57,7 @@ export async function logout() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   revalidatePath('/', 'layout');
-  redirect('/login');
+  redirect('/dashboard');
 }
 
 export async function getCurrentUser(): Promise<UserProfile | null> {
