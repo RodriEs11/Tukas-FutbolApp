@@ -89,12 +89,21 @@ export default async function PlayerDetailPage({
             &quot;{player.nickname}&quot;
           </p>
         )}
-        <Badge
-          variant={player.role === 'admin' ? 'warning' : 'success'}
-          className="mt-2"
-        >
-          {player.role === 'admin' ? 'Administrador' : 'Jugador'}
-        </Badge>
+        <div className="flex items-center gap-2 mt-3">
+          <Badge variant={player.role === 'admin' ? 'warning' : 'success'}>
+            {player.role === 'admin' ? 'Administrador' : 'Jugador'}
+          </Badge>
+          {player.position && (
+            <Badge variant="info">
+              {player.position}
+            </Badge>
+          )}
+          {player.preferred_foot && (
+            <Badge variant="default">
+              Pierna {player.preferred_foot}
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Stats Grid */}
