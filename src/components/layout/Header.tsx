@@ -23,7 +23,7 @@ const pageTitles: Record<string, string> = {
 
 export function Header() {
   const pathname = usePathname();
-  const { profile } = useUser();
+  const { user, profile, loading } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -67,20 +67,24 @@ export function Header() {
         </div>
         
         <div className="flex items-center gap-1 relative" ref={menuRef}>
-          {profile ? (
+          {loading ? (
+            <div className="h-8 w-24 rounded-full bg-muted animate-pulse" />
+          ) : user || profile ? (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center rounded-full transition-transform active:scale-95 md:hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 relative z-50 overflow-hidden"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium relative z-50"
             >
-              <Avatar player={profile} size="sm" className="ring-0" />
+              <User size={14} />
+              <span>Admin</span>
             </button>
           ) : (
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-muted transition-transform active:scale-95 md:hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 relative z-50"
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors text-sm font-medium text-foreground"
             >
-              <User size={16} className="text-muted-foreground" />
-            </button>
+              <User size={14} />
+              <span>Iniciar Sesión</span>
+            </Link>
           )}
 
           {menuOpen && (
