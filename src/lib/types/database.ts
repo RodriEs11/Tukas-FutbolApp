@@ -10,6 +10,8 @@ export interface UserProfile {
   nickname: string;
   role: UserRole;
   avatar_url: string;
+  preferred_foot?: string;
+  position?: string;
   created_at: string;
   updated_at: string;
 }
