@@ -23,8 +23,8 @@ export function BottomNav() {
   return (
     <nav className="
       fixed bottom-0 left-0 right-0 z-50
-      bg-zinc-950/90 backdrop-blur-xl
-      border-t border-zinc-800/60
+      bg-background/90 backdrop-blur-xl
+      border-t border-border/60
       pb-[env(safe-area-inset-bottom)]
       md:hidden
     ">
@@ -45,8 +45,8 @@ export function BottomNav() {
                 rounded-xl mx-1
                 active:scale-95
                 ${isActive
-                  ? 'text-emerald-400'
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'text-accent'
+                  : 'text-muted-foreground hover:text-foreground'
                 }
               `}
             >
@@ -57,13 +57,13 @@ export function BottomNav() {
                   className="transition-all duration-200"
                 />
                 {isActive && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
                 )}
               </div>
               <span className={`
                 text-[10px] font-medium
                 transition-all duration-200
-                ${isActive ? 'text-emerald-400' : ''}
+                ${isActive ? 'text-accent' : ''}
               `}>
                 {item.label}
               </span>

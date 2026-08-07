@@ -78,7 +78,7 @@ export default function NewMatchPage() {
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-scale-in">
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-destructive text-sm animate-scale-in">
             {error}
           </div>
         )}
@@ -112,10 +112,10 @@ export default function NewMatchPage() {
                   required
                   className="
                     w-full px-4 py-2.5 rounded-xl
-                    bg-zinc-900 border border-zinc-700 text-foreground
+                    bg-background border border-border text-foreground
                     transition-all duration-200
                     focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500
-                    hover:border-zinc-600
+                    hover:border-border-hover
                   "
                 >
                   <option value="">Selecciona hora...</option>
@@ -137,10 +137,10 @@ export default function NewMatchPage() {
                 name="field_id"
                 className="
                   w-full px-4 py-2.5 rounded-xl
-                  bg-zinc-900 border border-zinc-700 text-foreground
+                  bg-background border border-border text-foreground
                   transition-all duration-200
                   focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500
-                  hover:border-zinc-600
+                  hover:border-border-hover
                 "
               >
                 <option value="">Selecciona una cancha...</option>
@@ -165,11 +165,11 @@ export default function NewMatchPage() {
                 placeholder="Ej: Amistoso de viernes, llevar pecheras..."
                 className="
                   w-full px-4 py-2.5 rounded-xl
-                  bg-zinc-900 border border-zinc-700 text-foreground
-                  placeholder:text-zinc-500
+                  bg-background border border-border text-foreground
+                  placeholder:text-muted-foreground
                   transition-all duration-200
                   focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500
-                  hover:border-zinc-600
+                  hover:border-border-hover
                   resize-none
                 "
               />
@@ -194,3 +194,4 @@ export default function NewMatchPage() {
     </PageContainer>
   );
 }
+

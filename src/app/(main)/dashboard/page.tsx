@@ -57,7 +57,7 @@ export default async function DashboardPage() {
       <div className="grid grid-cols-3 gap-3 mb-6 animate-slide-up">
         <Card className="text-center stat-glow">
           <div className="flex flex-col items-center gap-1.5 py-1">
-            <Trophy size={18} className="text-emerald-400" />
+            <Trophy size={18} className="text-accent" />
             <span className="text-2xl font-bold text-foreground">
               {userMatches}
             </span>
@@ -66,7 +66,7 @@ export default async function DashboardPage() {
         </Card>
         <Card className="text-center">
           <div className="flex flex-col items-center gap-1.5 py-1">
-            <Goal size={18} className="text-sky-400" />
+            <Goal size={18} className="text-info" />
             <span className="text-2xl font-bold text-foreground">
               {userGoals}
             </span>
@@ -75,7 +75,7 @@ export default async function DashboardPage() {
         </Card>
         <Card className="text-center">
           <div className="flex flex-col items-center gap-1.5 py-1">
-            <TrendingUp size={18} className="text-amber-400" />
+            <TrendingUp size={18} className="text-warning" />
             <span className="text-2xl font-bold text-foreground">
               {userPoints}
             </span>
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
           <CardHeader>
             <CardTitle>
               <div className="flex items-center gap-2">
-                <Clock size={18} className="text-amber-400" />
+                <Clock size={18} className="text-warning" />
                 Último Partido
               </div>
             </CardTitle>
@@ -131,7 +131,7 @@ export default async function DashboardPage() {
         <CardHeader>
           <CardTitle>
             <div className="flex items-center gap-2">
-              <CalendarDays size={18} className="text-emerald-400" />
+              <CalendarDays size={18} className="text-accent" />
               Próximos Partidos
             </div>
           </CardTitle>
@@ -209,11 +209,11 @@ export default async function DashboardPage() {
                     <span
                       className={`text-sm font-bold w-6 text-center ${
                         index === 0
-                          ? 'text-amber-400'
+                          ? 'text-warning'
                           : index === 1
-                          ? 'text-zinc-400'
+                          ? 'text-muted-foreground'
                           : index === 2
-                          ? 'text-amber-700'
+                          ? 'text-warning/70'
                           : 'text-muted-foreground'
                       }`}
                     >
@@ -247,7 +247,7 @@ export default async function DashboardPage() {
         <CardHeader>
           <CardTitle>
             <div className="flex items-center gap-2">
-              <TrendingUp size={18} className="text-emerald-400" />
+              <TrendingUp size={18} className="text-accent" />
               Tabla de Posiciones
             </div>
           </CardTitle>
@@ -289,13 +289,13 @@ export default async function DashboardPage() {
                     <span className="text-sm text-center text-muted-foreground">
                       {stat.matches_played}
                     </span>
-                    <span className="text-sm text-center text-emerald-400">
+                    <span className="text-sm text-center text-accent">
                       {stat.wins}
                     </span>
-                    <span className="text-sm text-center text-amber-400">
+                    <span className="text-sm text-center text-warning">
                       {stat.draws}
                     </span>
-                    <span className="text-sm text-center text-red-400">
+                    <span className="text-sm text-center text-destructive">
                       {stat.losses}
                     </span>
                     <span className="text-sm text-center font-bold text-foreground">
@@ -311,3 +311,4 @@ export default async function DashboardPage() {
     </PageContainer>
   );
 }
+

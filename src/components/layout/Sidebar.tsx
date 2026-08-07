@@ -19,15 +19,15 @@ export function Sidebar() {
     <aside className="
       hidden md:flex md:flex-col
       w-64 h-screen
-      bg-zinc-950 border-r border-zinc-800/60
+      bg-card border-r border-border
       fixed left-0 top-0
     ">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 h-16 border-b border-zinc-800/60">
+      <div className="flex items-center gap-3 px-6 h-16 border-b border-border">
         <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-emerald-600 shadow-lg shadow-emerald-500/20">
           <Logo size={18} className="text-white" />
         </div>
-        <span className="text-xl font-bold text-zinc-100 tracking-tight">Tukas</span>
+        <span className="text-xl font-bold text-foreground tracking-tight">Tukas</span>
       </div>
 
       {/* Nav Items */}
@@ -47,8 +47,8 @@ export function Sidebar() {
                     text-sm font-medium
                     transition-all duration-200
                     ${isActive
-                      ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                      : 'text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 border border-transparent'
+                      ? 'bg-accent/10 text-accent border border-accent/20'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50 border border-transparent'
                     }
                   `}
                 >
@@ -62,8 +62,8 @@ export function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div className="px-4 py-4 border-t border-zinc-800/60">
-        <p className="text-xs text-zinc-600 text-center">Tukas v2.0</p>
+      <div className="px-4 py-4 border-t border-border">
+        <p className="text-xs text-muted-foreground text-center">Tukas v2.0</p>
       </div>
     </aside>
   );

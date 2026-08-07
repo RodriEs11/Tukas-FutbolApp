@@ -54,21 +54,21 @@ export default async function ProfilePage() {
           <div className="grid grid-cols-2 gap-3 mb-6 animate-slide-up">
             <Card className="text-center">
               <div className="flex flex-col items-center gap-1 py-1">
-                <Swords size={18} className="text-sky-400" />
+                <Swords size={18} className="text-info" />
                 <span className="text-2xl font-bold text-foreground">{stats.matches_played}</span>
                 <span className="text-xs text-muted-foreground">Partidos</span>
               </div>
             </Card>
             <Card className="text-center stat-glow">
               <div className="flex flex-col items-center gap-1 py-1">
-                <Target size={18} className="text-emerald-400" />
+                <Target size={18} className="text-accent" />
                 <span className="text-2xl font-bold text-foreground">{stats.goals}</span>
                 <span className="text-xs text-muted-foreground">Goles</span>
               </div>
             </Card>
             <Card className="text-center">
               <div className="flex flex-col items-center gap-1 py-1">
-                <Trophy size={18} className="text-amber-400" />
+                <Trophy size={18} className="text-warning" />
                 <span className="text-2xl font-bold text-foreground">{stats.wins}</span>
                 <span className="text-xs text-muted-foreground">Victorias</span>
               </div>
@@ -94,3 +94,4 @@ export default async function ProfilePage() {
     </PageContainer>
   );
 }
+

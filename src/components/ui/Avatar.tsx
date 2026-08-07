@@ -24,7 +24,7 @@ export function Avatar({ player, size = 'md', className = '' }: AvatarProps) {
         alt={`${player.first_name} ${player.last_name}`}
         className={`
           ${sizeStyles[size]} rounded-full object-cover
-          ring-2 ring-zinc-800
+          ring-2 ring-background
           ${className}
         `}
       />
@@ -37,7 +37,7 @@ export function Avatar({ player, size = 'md', className = '' }: AvatarProps) {
         ${sizeStyles[size]} rounded-full
         flex items-center justify-center
         font-semibold text-white
-        ring-2 ring-zinc-800
+        ring-2 ring-background
         ${className}
       `}
       style={{ backgroundColor: bgColor }}

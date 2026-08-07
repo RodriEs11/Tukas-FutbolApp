@@ -76,7 +76,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
             disabled={loading}
-            className="flex-1 px-3 py-1.5 rounded-lg bg-zinc-900 border border-zinc-700 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+            className="flex-1 px-3 py-1.5 rounded-lg bg-background border border-border text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-accent/50"
           >
             <option value="">Añadir jugador...</option>
             {availablePlayers.map(p => (
@@ -118,14 +118,14 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allPlaye
                   {(mp.goals > 0 || isAdmin) && (
                     <div className={`flex items-center gap-2 text-${teamColor}-400`}>
                       {isAdmin && (
-                        <button onClick={() => handleUpdateGoals(mp, -1)} disabled={loading || mp.goals === 0} className="hover:text-white disabled:opacity-50">
+                        <button onClick={() => handleUpdateGoals(mp, -1)} disabled={loading || mp.goals === 0} className="hover:text-foreground disabled:opacity-50">
                           <Minus size={14} />
                         </button>
                       )}
                       <Goal size={12} />
                       <span className="text-xs font-bold w-3 text-center">{mp.goals}</span>
                       {isAdmin && (
-                        <button onClick={() => handleUpdateGoals(mp, 1)} disabled={loading} className="hover:text-white disabled:opacity-50">
+                        <button onClick={() => handleUpdateGoals(mp, 1)} disabled={loading} className="hover:text-foreground disabled:opacity-50">
                           <Plus size={14} />
                         </button>
                       )}
