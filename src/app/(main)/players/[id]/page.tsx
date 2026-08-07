@@ -4,18 +4,21 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { getPlayer } from '@/lib/actions/players';
 import { getPlayerStats } from '@/lib/actions/stats';
+import { getPlayerMatches } from '@/lib/actions/matches';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import {
-  ArrowLeft,
   Trophy,
   Target,
   TrendingUp,
   Medal,
   Percent,
   Swords,
+  Star,
 } from 'lucide-react';
 import { BackButton } from '@/components/ui/BackButton';
+import { PlayerMatchList } from '@/components/players/PlayerMatchList';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -35,9 +38,10 @@ export default async function PlayerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [player, stats] = await Promise.all([
+  const [player, stats, matches] = await Promise.all([
     getPlayer(id),
     getPlayerStats(id),
+    getPlayerMatches(id),
   ]);
 
   if (!player) notFound();
@@ -49,8 +53,22 @@ export default async function PlayerDetailPage({
 
   return (
     <PageContainer>
-      {/* Back button */}
-      <BackButton fallbackHref="/players" />
+      {/* Top bar: Back + View Card */}
+      <div className="flex items-center justify-between mb-6">
+        <BackButton fallbackHref="/players" className="" />
+        <Link
+          href={`/players/${id}/card`}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
+          style={{
+            color: '#d4a853',
+            backgroundColor: 'rgba(212, 168, 83, 0.1)',
+            borderColor: 'rgba(212, 168, 83, 0.3)',
+          }}
+        >
+          <Star size={14} />
+          Ver Carta
+        </Link>
+      </div>
 
       {/* Player Header */}
       <div className="flex flex-col items-center mb-8 animate-fade-in">
@@ -163,6 +181,9 @@ export default async function PlayerDetailPage({
           </p>
         </Card>
       )}
+
+      {/* Match List */}
+      <PlayerMatchList matches={matches} />
     </PageContainer>
   );
 }
