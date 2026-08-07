@@ -1,3 +1,5 @@
+import { getCurrentUser } from '@/lib/actions/auth';
+// ... rest of imports are handled by replacing the whole top block
 import { PageContainer } from '@/components/layout/PageContainer';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -26,7 +28,12 @@ function getStatusVariant(status: string) {
 }
 
 export default async function MatchesPage() {
-  const matches = await getMatches();
+  const [matches, user] = await Promise.all([
+    getMatches(),
+    getCurrentUser(),
+  ]);
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <PageContainer>
@@ -40,19 +47,21 @@ export default async function MatchesPage() {
             {matches.length} {matches.length === 1 ? 'partido' : 'partidos'} registrados
           </p>
         </div>
-        <Link
-          href="/matches/new"
-          className="
-            inline-flex items-center gap-1.5 px-4 py-2.5
-            text-sm font-medium text-white
-            bg-emerald-600 hover:bg-emerald-700
-            rounded-xl shadow-lg shadow-emerald-500/20
-            transition-all duration-200 active:scale-95
-          "
-        >
-          <CalendarPlus size={16} />
-          <span className="hidden sm:inline">Nuevo</span>
-        </Link>
+        {isAdmin && (
+          <Link
+            href="/matches/new"
+            className="
+              inline-flex items-center gap-1.5 px-4 py-2.5
+              text-sm font-medium text-white
+              bg-emerald-600 hover:bg-emerald-700
+              rounded-xl shadow-lg shadow-emerald-500/20
+              transition-all duration-200 active:scale-95
+            "
+          >
+            <CalendarPlus size={16} />
+            <span className="hidden sm:inline">Nuevo</span>
+          </Link>
+        )}
       </div>
 
       {/* Match List */}
@@ -60,7 +69,7 @@ export default async function MatchesPage() {
         <Card className="animate-fade-in">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-              <Trophy size={28} className="text-emerald-400" />
+              <Trophy size={28} className="text-accent" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">
               Sin partidos aún
@@ -132,3 +141,4 @@ export default async function MatchesPage() {
     </PageContainer>
   );
 }
+

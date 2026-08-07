@@ -102,3 +102,31 @@ export async function getUpcomingMatches(limit = 5): Promise<Match[]> {
 
   return (data as unknown as Match[]) || [];
 }
+
+export async function getLastMatch(): Promise<Match | null> {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from('matches')
+    .select(`
+      *,
+      field:fields(*),
+      match_players(
+        *,
+        player:user_profiles(*)
+      )
+    `)
+    .or(`status.eq.played,match_date.lt.${new Date().toISOString()}`)
+    .order('match_date', { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    if (error.code !== 'PGRST116') { // not found
+      console.error('Error fetching last match:', error);
+    }
+    return null;
+  }
+
+  return (data as unknown as Match) ?? null;
+}

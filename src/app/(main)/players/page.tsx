@@ -34,7 +34,7 @@ export default async function PlayersPage() {
         <Card className="animate-fade-in">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-              <UserPlus size={28} className="text-emerald-400" />
+              <UserPlus size={28} className="text-accent" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">
               Sin jugadores aún
@@ -76,3 +76,4 @@ export default async function PlayersPage() {
     </PageContainer>
   );
 }
+

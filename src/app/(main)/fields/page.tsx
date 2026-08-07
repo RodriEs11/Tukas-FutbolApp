@@ -54,7 +54,7 @@ export default async function FieldsPage() {
         <Card className="animate-fade-in">
           <div className="flex flex-col items-center justify-center py-12">
             <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4">
-              <Landmark size={28} className="text-emerald-400" />
+              <Landmark size={28} className="text-accent" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">
               Sin canchas registradas
@@ -72,7 +72,7 @@ export default async function FieldsPage() {
             <Card key={field.id} variant="interactive">
               <div className="flex items-start gap-3">
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center shrink-0">
-                  <Landmark size={18} className="text-emerald-400" />
+                  <Landmark size={18} className="text-accent" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-foreground">
@@ -104,3 +104,4 @@ export default async function FieldsPage() {
     </PageContainer>
   );
 }
+

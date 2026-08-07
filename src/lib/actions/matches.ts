@@ -144,6 +144,47 @@ export async function addPlayerToMatch(matchId: string, playerId: string, team: 
   return { success: true };
 }
 
+export async function addPlayersToMatch(matchId: string, playerIds: string[], team: 'A' | 'B') {
+  const supabase = await createClient();
+
+  const { data: existingPlayers } = await supabase
+    .from('match_players')
+    .select('player_id')
+    .eq('match_id', matchId)
+    .in('player_id', playerIds);
+
+  const existingIds = existingPlayers?.map((p) => p.player_id) || [];
+  const newPlayerIds = playerIds.filter((id) => !existingIds.includes(id));
+
+  if (newPlayerIds.length === 0) {
+    return { error: 'Todos los jugadores seleccionados ya están en un equipo.' };
+  }
+
+  const payload = newPlayerIds.map((playerId) => ({
+    match_id: matchId,
+    player_id: playerId,
+    team,
+    goals: 0,
+    attended: true,
+  }));
+
+  const { error } = await supabase
+    .from('match_players')
+    .insert(payload as Record<string, unknown>[]);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/matches/${matchId}`);
+  
+  return { 
+    success: true, 
+    addedCount: newPlayerIds.length,
+    duplicatesCount: existingIds.length 
+  };
+}
+
 export async function updateMatchPlayer(formData: FormData) {
   const supabase = await createClient();
 
@@ -161,5 +202,63 @@ export async function updateMatchPlayer(formData: FormData) {
   }
 
   revalidatePath('/matches');
+  return { success: true };
+}
+
+export async function removePlayerFromMatch(matchId: string, playerId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('match_players')
+    .delete()
+    .eq('match_id', matchId)
+    .eq('player_id', playerId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/matches/${matchId}`);
+  return { success: true };
+}
+
+export async function finishMatch(matchId: string) {
+  const supabase = await createClient();
+
+  // Get all match players to calculate score
+  const { data: matchPlayers, error: fetchError } = await supabase
+    .from('match_players')
+    .select('team, goals')
+    .eq('match_id', matchId);
+
+  if (fetchError) {
+    return { error: fetchError.message };
+  }
+
+  const scoreTeamA = matchPlayers
+    .filter((mp) => mp.team === 'A')
+    .reduce((sum, mp) => sum + (mp.goals || 0), 0);
+    
+  const scoreTeamB = matchPlayers
+    .filter((mp) => mp.team === 'B')
+    .reduce((sum, mp) => sum + (mp.goals || 0), 0);
+
+  const { error } = await supabase
+    .from('matches')
+    .update({
+      status: 'played',
+      score_team_a: scoreTeamA,
+      score_team_b: scoreTeamB,
+    } as Record<string, unknown>)
+    .eq('id', matchId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/matches');
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath('/dashboard');
+  revalidatePath('/players');
   return { success: true };
 }

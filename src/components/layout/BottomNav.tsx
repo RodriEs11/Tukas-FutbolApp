@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Trophy, type LucideIcon } from 'lucide-react';
+import { Home, Users, Trophy, MapPin, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -11,20 +11,27 @@ interface NavItem {
 }
 
 // Modular: agrega nuevas pestañas simplemente agregando un item a este array
-const navItems: NavItem[] = [
-  { href: '/dashboard', label: 'Inicio', icon: Home },
-  { href: '/players', label: 'Jugadores', icon: Users },
-  { href: '/matches', label: 'Partidos', icon: Trophy },
-];
+const getNavItems = (isAdmin: boolean): NavItem[] => {
+  const items = [
+    { href: '/dashboard', label: 'Inicio', icon: Home },
+    { href: '/players', label: 'Jugadores', icon: Users },
+    { href: '/matches', label: 'Partidos', icon: Trophy },
+  ];
+  if (isAdmin) {
+    items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
+  }
+  return items;
+};
 
-export function BottomNav() {
+export function BottomNav({ isAdmin }: { isAdmin?: boolean }) {
   const pathname = usePathname();
+  const navItems = getNavItems(!!isAdmin);
 
   return (
     <nav className="
       fixed bottom-0 left-0 right-0 z-50
-      bg-zinc-950/90 backdrop-blur-xl
-      border-t border-zinc-800/60
+      bg-background/90 backdrop-blur-xl
+      border-t border-border/60
       pb-[env(safe-area-inset-bottom)]
       md:hidden
     ">
@@ -45,8 +52,8 @@ export function BottomNav() {
                 rounded-xl mx-1
                 active:scale-95
                 ${isActive
-                  ? 'text-emerald-400'
-                  : 'text-zinc-500 hover:text-zinc-300'
+                  ? 'text-accent'
+                  : 'text-muted-foreground hover:text-foreground'
                 }
               `}
             >
@@ -57,13 +64,13 @@ export function BottomNav() {
                   className="transition-all duration-200"
                 />
                 {isActive && (
-                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-emerald-400" />
+                  <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-accent" />
                 )}
               </div>
               <span className={`
                 text-[10px] font-medium
                 transition-all duration-200
-                ${isActive ? 'text-emerald-400' : ''}
+                ${isActive ? 'text-accent' : ''}
               `}>
                 {item.label}
               </span>

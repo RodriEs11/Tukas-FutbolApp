@@ -43,7 +43,7 @@ export default function RegisterPage() {
         </h2>
 
         {error && (
-          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm animate-scale-in">
+          <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm animate-scale-in">
             {error}
           </div>
         )}
@@ -125,7 +125,7 @@ export default function RegisterPage() {
         ¿Ya tenés cuenta?{' '}
         <Link
           href="/login"
-          className="text-emerald-400 hover:text-emerald-300 font-medium transition-colors"
+          className="text-accent hover:text-accent-hover font-medium transition-colors"
         >
           Iniciá sesión
         </Link>
