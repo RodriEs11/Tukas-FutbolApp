@@ -65,6 +65,13 @@ export interface PlayerStats {
   points: number;
 }
 
+export interface ScorerStat {
+  player: UserProfile;
+  matches_played: number;
+  goals: number;
+  goals_per_match: number;
+}
+
 // Supabase Database type helper
 export interface Database {
   public: {

@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { calculatePlayerStats } from '@/lib/utils/helpers';
-import type { PlayerStats, UserProfile, Match, MatchPlayer } from '@/lib/types/database';
+import type { PlayerStats, ScorerStat, UserProfile, Match, MatchPlayer } from '@/lib/types/database';
 
 export async function getLeaderboard(): Promise<PlayerStats[]> {
   const supabase = await createClient();
@@ -135,5 +135,64 @@ export async function getMaxMatchesPlayed(): Promise<number> {
   const leaderboard = await getLeaderboard();
   if (leaderboard.length === 0) return 0;
   return Math.max(...leaderboard.map((s) => s.matches_played));
+}
+
+export async function getScorersStats(): Promise<ScorerStat[]> {
+  const supabase = await createClient();
+
+  // Fetch all players
+  const { data: players } = await supabase
+    .from('user_profiles')
+    .select('*');
+
+  // Fetch all played matches
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('id, status')
+    .eq('status', 'played');
+
+  // Fetch all match_players
+  const { data: matchPlayers } = await supabase
+    .from('match_players')
+    .select('player_id, match_id, goals, attended');
+
+  if (!players || !matches || !matchPlayers) return [];
+
+  const playedMatchIds = new Set(matches.map((m) => m.id));
+
+  // Calculate stats for each player
+  const scorersMap = new Map<string, ScorerStat>();
+
+  (players as UserProfile[]).forEach((player) => {
+    scorersMap.set(player.id, {
+      player,
+      matches_played: 0,
+      goals: 0,
+      goals_per_match: 0,
+    });
+  });
+
+  matchPlayers.forEach((mp) => {
+    if (mp.attended && playedMatchIds.has(mp.match_id)) {
+      const stats = scorersMap.get(mp.player_id);
+      if (stats) {
+        stats.matches_played += 1;
+        stats.goals += mp.goals || 0;
+      }
+    }
+  });
+
+  const scorers = Array.from(scorersMap.values()).filter(s => s.matches_played > 0);
+
+  scorers.forEach(s => {
+    s.goals_per_match = s.matches_played > 0 ? Number((s.goals / s.matches_played).toFixed(2)) : 0;
+  });
+
+  // Sort by goals (desc), then matches_played (desc), then goals_per_match (desc)
+  return scorers.sort((a, b) => {
+    if (b.goals !== a.goals) return b.goals - a.goals;
+    if (b.matches_played !== a.matches_played) return b.matches_played - a.matches_played;
+    return b.goals_per_match - a.goals_per_match;
+  });
 }
 
