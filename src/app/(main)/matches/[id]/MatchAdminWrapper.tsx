@@ -50,7 +50,7 @@ export function MatchAdminWrapper({
       {isAdmin && (
         <div className="absolute top-0 right-0 z-10 animate-fade-in">
           <Button 
-            variant="outline" 
+            variant="secondary" 
             size="sm" 
             onClick={() => setIsEditing(!isEditing)}
             className="flex items-center gap-2"
