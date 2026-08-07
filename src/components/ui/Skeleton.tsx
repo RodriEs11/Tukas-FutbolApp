@@ -4,7 +4,7 @@ interface SkeletonProps {
 }
 
 export function Skeleton({ className = '', variant = 'rectangular' }: SkeletonProps) {
-  const baseStyles = 'animate-pulse bg-zinc-800 rounded-xl';
+  const baseStyles = 'animate-pulse bg-muted rounded-xl';
   const variantStyles = {
     rectangular: '',
     circular: '!rounded-full',

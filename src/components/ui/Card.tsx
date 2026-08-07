@@ -23,8 +23,8 @@ export function Card({
   return (
     <div
       className={`
-        bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl
-        ${variant === 'interactive' ? 'hover:border-zinc-700 hover:bg-zinc-900 transition-all duration-200 cursor-pointer active:scale-[0.98]' : ''}
+        bg-card/80 backdrop-blur-sm border border-border rounded-2xl
+        ${variant === 'interactive' ? 'hover:border-border-hover hover:bg-card transition-all duration-200 cursor-pointer active:scale-[0.98]' : ''}
         ${paddingStyles[padding]}
         ${className}
       `}
@@ -57,7 +57,7 @@ export function CardTitle({
   className?: string;
 }) {
   return (
-    <h3 className={`text-lg font-semibold text-zinc-100 ${className}`}>
+    <h3 className={`text-lg font-semibold text-card-foreground ${className}`}>
       {children}
     </h3>
   );

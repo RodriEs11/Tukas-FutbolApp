@@ -30,8 +30,8 @@ export function ThemeToggle() {
       onClick={toggleTheme}
       className="
         p-2 rounded-xl
-        text-zinc-400 hover:text-zinc-100
-        hover:bg-zinc-800/80
+        text-muted-foreground hover:text-foreground
+        hover:bg-muted/80
         transition-all duration-200
         active:scale-95
       "
