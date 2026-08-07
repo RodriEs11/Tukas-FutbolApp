@@ -4,6 +4,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { getPlayer } from '@/lib/actions/players';
 import { getPlayerStats } from '@/lib/actions/stats';
+import { getPlayerMatches } from '@/lib/actions/matches';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
 import { notFound } from 'next/navigation';
 import {
@@ -16,6 +17,7 @@ import {
   Swords,
 } from 'lucide-react';
 import { BackButton } from '@/components/ui/BackButton';
+import { PlayerMatchList } from '@/components/players/PlayerMatchList';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -35,9 +37,10 @@ export default async function PlayerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [player, stats] = await Promise.all([
+  const [player, stats, matches] = await Promise.all([
     getPlayer(id),
     getPlayerStats(id),
+    getPlayerMatches(id),
   ]);
 
   if (!player) notFound();
@@ -163,6 +166,9 @@ export default async function PlayerDetailPage({
           </p>
         </Card>
       )}
+
+      {/* Match List */}
+      <PlayerMatchList matches={matches} />
     </PageContainer>
   );
 }
