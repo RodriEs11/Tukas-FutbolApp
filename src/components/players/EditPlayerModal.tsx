@@ -113,7 +113,7 @@ export function EditPlayerModal({ player }: EditPlayerModalProps) {
               defaultValue={player.position || ''}
             >
               <option value="" disabled>Seleccionar posición...</option>
-              <option value="Portero">Portero</option>
+              <option value="Arquero">Arquero</option>
               <option value="Defensa">Defensa</option>
               <option value="Mediocampista">Mediocampista</option>
               <option value="Delantero">Delantero</option>
