@@ -6,8 +6,8 @@ import type { Match, MatchPlayer, PlayerStats, UserProfile } from '@/lib/types/d
  */
 export function formatDate(dateString: string): string {
   return new Intl.DateTimeFormat('es-AR', {
-    day: 'numeric',
-    month: 'short',
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
   }).format(new Date(dateString));
 }
@@ -17,11 +17,12 @@ export function formatDate(dateString: string): string {
  */
 export function formatDateTime(dateString: string): string {
   return new Intl.DateTimeFormat('es-AR', {
-    day: 'numeric',
-    month: 'short',
+    day: '2-digit',
+    month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+    hour12: false,
   }).format(new Date(dateString));
 }
 
