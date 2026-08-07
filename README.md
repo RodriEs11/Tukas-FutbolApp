@@ -89,14 +89,14 @@ Tienes dos opciones para manejar la base de datos:
 **Opción A: Supabase en la Nube (Recomendado para Producción/Pruebas rápidas)**
 1. Crea un proyecto en [Supabase](https://database.new/).
 2. Ve al SQL Editor y corre los scripts que se encuentran en la carpeta `supabase/migrations/` para generar las tablas y políticas RLS.
-3. (Opcional) Si necesitas datos falsos para probar, copia el contenido del archivo de pruebas `supabase/seed.sql` (que contiene usuarios mockeados, canchas y partidos) y córrelo en el SQL Editor.
+
 
 **Opción B: Supabase Local (Recomendado para Desarrollo)**
 Si tienes Docker y Supabase CLI instalados:
 ```bash
 npx supabase start
 ```
-Esto levantará la base de datos local y aplicará las migraciones y el archivo `seed.sql` automáticamente. Una vez levantado, la consola te imprimirá tu `API URL` y `anon key` locales que deberás poner en tu `.env.local`.
+Esto levantará la base de datos local y aplicará las migraciones automáticamente. Una vez levantado, la consola te imprimirá tu `API URL` y `anon key` locales que deberás poner en tu `.env.local`.
 
 ---
 
