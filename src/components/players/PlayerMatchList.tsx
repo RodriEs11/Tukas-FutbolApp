@@ -102,7 +102,7 @@ export function PlayerMatchList({ matches }: PlayerMatchListProps) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             disabled={currentPage === 1}
@@ -115,7 +115,7 @@ export function PlayerMatchList({ matches }: PlayerMatchListProps) {
             Página {currentPage} de {totalPages}
           </span>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             disabled={currentPage === totalPages}
