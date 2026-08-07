@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/Input';
 import { createMatch } from '@/lib/actions/matches';
 import { getFields } from '@/lib/actions/fields';
 import type { Field } from '@/lib/types/database';
-import { ArrowLeft, CalendarDays, FileText, MapPin, Clock } from 'lucide-react';
-import Link from 'next/link';
+import { CalendarDays, FileText, MapPin, Clock } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 const TIME_OPTIONS = [
   '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
@@ -64,13 +64,7 @@ export default function NewMatchPage() {
   return (
     <PageContainer>
       {/* Back button */}
-      <Link
-        href="/matches"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft size={16} />
-        Volver a partidos
-      </Link>
+      <BackButton fallbackHref="/matches" />
 
       <div className="animate-fade-in">
         <h2 className="text-2xl font-bold text-foreground tracking-tight mb-6">

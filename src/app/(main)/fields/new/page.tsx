@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { createField } from '@/lib/actions/fields';
-import { ArrowLeft, Landmark, MapPin, FileText } from 'lucide-react';
-import Link from 'next/link';
+import { Landmark, MapPin, FileText } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 const surfaceOptions = [
   { value: 'césped', label: 'Césped Natural' },
@@ -38,13 +38,7 @@ export default function NewFieldPage() {
   return (
     <PageContainer>
       {/* Back button */}
-      <Link
-        href="/fields"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft size={16} />
-        Volver a canchas
-      </Link>
+      <BackButton fallbackHref="/fields" />
 
       <div className="animate-fade-in">
         <h2 className="text-2xl font-bold text-foreground tracking-tight mb-6">

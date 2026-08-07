@@ -7,12 +7,14 @@ import { getCurrentUser } from '@/lib/actions/auth';
 import { getPlayerStats } from '@/lib/actions/stats';
 import { logout } from '@/lib/actions/auth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import {
   LogOut,
   Trophy,
   Target,
   Medal,
   Swords,
+  Settings,
 } from 'lucide-react';
 import type { Metadata } from 'next';
 
@@ -83,13 +85,21 @@ export default async function ProfilePage() {
           </div>
         )}
 
-        {/* Logout */}
-        <form action={logout}>
-          <Button type="submit" variant="danger" fullWidth>
-            <LogOut size={16} />
-            Cerrar sesión
-          </Button>
-        </form>
+        {/* Actions */}
+        <div className="flex flex-col gap-3">
+          <Link href="/profile/edit" className="w-full">
+            <Button variant="secondary" fullWidth>
+              <Settings size={16} className="mr-2" />
+              Editar perfil
+            </Button>
+          </Link>
+          <form action={logout}>
+            <Button type="submit" variant="danger" fullWidth>
+              <LogOut size={16} className="mr-2" />
+              Cerrar sesión
+            </Button>
+          </form>
+        </div>
       </div>
     </PageContainer>
   );

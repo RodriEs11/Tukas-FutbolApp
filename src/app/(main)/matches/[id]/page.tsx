@@ -7,11 +7,10 @@ import { formatDateTime, getPlayerDisplayName } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS, TEAM_LABELS } from '@/lib/utils/constants';
 import { notFound } from 'next/navigation';
 import {
-  ArrowLeft,
   MapPin,
   CalendarDays,
 } from 'lucide-react';
-import Link from 'next/link';
+import { BackButton } from '@/components/ui/BackButton';
 import { getCurrentUser } from '@/lib/actions/auth';
 import { getPlayers } from '@/lib/actions/players';
 import { MatchTeamAdmin } from './MatchTeamAdmin';
@@ -78,13 +77,7 @@ export default async function MatchDetailPage({
   return (
     <PageContainer>
       {/* Back button */}
-      <Link
-        href="/matches"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft size={16} />
-        Volver a partidos
-      </Link>
+      <BackButton fallbackHref="/matches" />
 
       {/* Match Header wrapped in Admin Wrapper */}
       <MatchAdminWrapper

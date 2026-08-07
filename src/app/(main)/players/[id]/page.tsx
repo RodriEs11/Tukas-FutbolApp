@@ -15,7 +15,7 @@ import {
   Percent,
   Swords,
 } from 'lucide-react';
-import Link from 'next/link';
+import { BackButton } from '@/components/ui/BackButton';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -50,13 +50,7 @@ export default async function PlayerDetailPage({
   return (
     <PageContainer>
       {/* Back button */}
-      <Link
-        href="/players"
-        className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-      >
-        <ArrowLeft size={16} />
-        Volver a jugadores
-      </Link>
+      <BackButton fallbackHref="/players" />
 
       {/* Player Header */}
       <div className="flex flex-col items-center mb-8 animate-fade-in">
