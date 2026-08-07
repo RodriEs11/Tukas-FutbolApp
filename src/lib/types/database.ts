@@ -72,6 +72,14 @@ export interface ScorerStat {
   goals_per_match: number;
 }
 
+export interface PaternityStat {
+  father: UserProfile;
+  sons: {
+    son: UserProfile;
+    net_wins: number;
+  }[];
+}
+
 // Supabase Database type helper
 export interface Database {
   public: {
@@ -95,6 +103,15 @@ export interface Database {
         Row: MatchPlayer;
         Insert: Omit<MatchPlayer, 'id' | 'created_at' | 'player'>;
         Update: Partial<Omit<MatchPlayer, 'id' | 'created_at' | 'player'>>;
+      };
+    };
+    Views: {
+      paternities: {
+        Row: {
+          father_id: string;
+          son_id: string;
+          net_wins: number;
+        };
       };
     };
   };
