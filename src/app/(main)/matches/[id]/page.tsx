@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { getMatch } from '@/lib/actions/matches';
-import { formatDateTime } from '@/lib/utils/helpers';
+import { formatDateTime, getPlayerDisplayName } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS, TEAM_LABELS } from '@/lib/utils/constants';
 import { notFound } from 'next/navigation';
 import {
@@ -56,8 +56,21 @@ export default async function MatchDetailPage({
   const isAdmin = currentUser?.role === 'admin';
   const allPlayers = await getPlayers();
 
-  const teamA = match.match_players?.filter((mp) => mp.team === 'A') || [];
-  const teamB = match.match_players?.filter((mp) => mp.team === 'B') || [];
+  const teamA = match.match_players
+    ?.filter((mp) => mp.team === 'A')
+    .sort((a, b) => {
+      const nameA = a.player ? getPlayerDisplayName(a.player) : '';
+      const nameB = b.player ? getPlayerDisplayName(b.player) : '';
+      return nameA.localeCompare(nameB);
+    }) || [];
+    
+  const teamB = match.match_players
+    ?.filter((mp) => mp.team === 'B')
+    .sort((a, b) => {
+      const nameA = a.player ? getPlayerDisplayName(a.player) : '';
+      const nameB = b.player ? getPlayerDisplayName(b.player) : '';
+      return nameA.localeCompare(nameB);
+    }) || [];
   const isPlayed = match.status === 'played';
 
   return (

@@ -144,6 +144,47 @@ export async function addPlayerToMatch(matchId: string, playerId: string, team: 
   return { success: true };
 }
 
+export async function addPlayersToMatch(matchId: string, playerIds: string[], team: 'A' | 'B') {
+  const supabase = await createClient();
+
+  const { data: existingPlayers } = await supabase
+    .from('match_players')
+    .select('player_id')
+    .eq('match_id', matchId)
+    .in('player_id', playerIds);
+
+  const existingIds = existingPlayers?.map((p) => p.player_id) || [];
+  const newPlayerIds = playerIds.filter((id) => !existingIds.includes(id));
+
+  if (newPlayerIds.length === 0) {
+    return { error: 'Todos los jugadores seleccionados ya están en un equipo.' };
+  }
+
+  const payload = newPlayerIds.map((playerId) => ({
+    match_id: matchId,
+    player_id: playerId,
+    team,
+    goals: 0,
+    attended: true,
+  }));
+
+  const { error } = await supabase
+    .from('match_players')
+    .insert(payload as Record<string, unknown>[]);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath(`/matches/${matchId}`);
+  
+  return { 
+    success: true, 
+    addedCount: newPlayerIds.length,
+    duplicatesCount: existingIds.length 
+  };
+}
+
 export async function updateMatchPlayer(formData: FormData) {
   const supabase = await createClient();
 
