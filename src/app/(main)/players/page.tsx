@@ -74,7 +74,7 @@ export default async function PlayersPage() {
                     <Badge variant={player.role === 'admin' ? 'warning' : 'default'}>
                       {player.role === 'admin' ? 'Admin' : 'Jugador'}
                     </Badge>
-                    {isAdmin && (
+                    {isAdmin && player.id !== currentUser?.id && (
                       <DeletePlayerButton 
                         playerId={player.id} 
                         playerName={`${player.first_name} ${player.last_name}`} 
