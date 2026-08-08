@@ -18,6 +18,7 @@ export const mockAdminPlayer: UserProfile = {
   avatar_url: '',
   preferred_foot: 'Derecha',
   position: 'Mediocampista',
+  is_active: true,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
 };
@@ -31,6 +32,7 @@ export const mockRegularPlayer: UserProfile = {
   avatar_url: 'https://example.com/avatar.jpg',
   preferred_foot: 'Izquierda',
   position: 'Delantero',
+  is_active: true,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
 };
@@ -44,6 +46,7 @@ export const mockPlayerNoNickname: UserProfile = {
   avatar_url: '',
   preferred_foot: 'Derecha',
   position: 'Defensa',
+  is_active: true,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
 };
@@ -57,6 +60,7 @@ export const mockPlayerNoAvatar: UserProfile = {
   avatar_url: '',
   preferred_foot: '',
   position: '',
+  is_active: true,
   created_at: '2024-01-01T00:00:00Z',
   updated_at: '2024-01-01T00:00:00Z',
 };
@@ -220,6 +224,7 @@ export function createMockPlayer(overrides: Partial<UserProfile> = {}): UserProf
     avatar_url: '',
     preferred_foot: '',
     position: '',
+    is_active: true,
     created_at: '2024-01-01T00:00:00Z',
     updated_at: '2024-01-01T00:00:00Z',
     ...overrides,
