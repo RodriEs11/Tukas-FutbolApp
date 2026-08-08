@@ -24,12 +24,12 @@ describe('Avatar', () => {
   it('Aplica tamaños sm/md/lg', () => {
     const player = mockPlayerNoAvatar;
     const { container: smContainer } = render(<Avatar player={player} size="sm" />);
-    expect(smContainer.firstChild?.className).toContain('w-8 h-8');
+    expect(smContainer.firstElementChild?.className).toContain('w-8 h-8');
 
     const { container: mdContainer } = render(<Avatar player={player} size="md" />);
-    expect(mdContainer.firstChild?.className).toContain('w-10 h-10');
+    expect(mdContainer.firstElementChild?.className).toContain('w-10 h-10');
 
     const { container: lgContainer } = render(<Avatar player={player} size="lg" />);
-    expect(lgContainer.firstChild?.className).toContain('w-14 h-14');
+    expect(lgContainer.firstElementChild?.className).toContain('w-14 h-14');
   });
 });

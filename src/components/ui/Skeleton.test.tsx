@@ -5,9 +5,9 @@ import { Skeleton } from './Skeleton';
 describe('Skeleton', () => {
   it('Renderiza variantes y tiene clases base', () => {
     const { container } = render(<Skeleton className="w-10 h-10" />);
-    expect(container.firstChild?.className).toContain('animate-pulse');
-    expect(container.firstChild?.className).toContain('bg-muted');
-    expect(container.firstChild?.className).toContain('w-10 h-10');
+    expect(container.firstElementChild?.className).toContain('animate-pulse');
+    expect(container.firstElementChild?.className).toContain('bg-muted');
+    expect(container.firstElementChild?.className).toContain('w-10 h-10');
   });
 
   it('Tiene aria-hidden', () => {

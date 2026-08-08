@@ -14,12 +14,12 @@ describe('Card', () => {
 
   it('Aplica variante interactive', () => {
     const { container } = render(<Card className="hover:bg-accent cursor-pointer">Clickable</Card>);
-    expect(container.firstChild?.className).toContain('cursor-pointer');
+    expect(container.firstElementChild?.className).toContain('cursor-pointer');
   });
 
   it('Aplica padding', () => {
     const { container } = render(<Card className="p-6">Padding</Card>);
-    expect(container.firstChild?.className).toContain('p-6');
+    expect(container.firstElementChild?.className).toContain('p-6');
   });
 
   it('CardHeader y CardTitle renderizan', () => {

@@ -50,7 +50,7 @@ export async function updatePlayer(formData: FormData) {
   const removeAvatar = formData.get('remove_avatar') === 'true';
   const oldAvatarUrl = formData.get('old_avatar_url') as string;
 
-  let newAvatarUrl: string | null = undefined;
+  let newAvatarUrl: string | null | undefined = undefined;
 
   if (removeAvatar) {
     newAvatarUrl = null;
