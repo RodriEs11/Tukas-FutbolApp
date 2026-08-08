@@ -35,9 +35,16 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Protected routes: redirect to login if not authenticated
-  // REMOVED: All routes are now accessible to guests. Read-only permissions are enforced via RLS.
+  const protectedPaths = ['/profile'];
+  const isProtectedRoute = protectedPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
 
-
+  if (isProtectedRoute && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
   // Auth routes: redirect to dashboard if already authenticated
   const authPaths = ['/login'];
   const isAuthRoute = authPaths.some((path) =>
