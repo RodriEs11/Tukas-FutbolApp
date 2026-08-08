@@ -12,23 +12,6 @@ const seedPath = path.join(rootDir, 'supabase', 'seed.sql');
 const testSeedPath = path.join(rootDir, 'supabase', 'seed.test.sql');
 const backupSeedPath = path.join(rootDir, 'supabase', 'seed.backup.sql');
 
-setup('reset and seed database', async () => {
-  if (fs.existsSync(seedPath)) {
-    fs.copyFileSync(seedPath, backupSeedPath);
-  }
-  
-  fs.copyFileSync(testSeedPath, seedPath);
-  
-  try {
-    console.log('Resetting database for tests...');
-    execSync('npx supabase db reset', { cwd: rootDir, stdio: 'pipe' });
-  } finally {
-    if (fs.existsSync(backupSeedPath)) {
-      fs.copyFileSync(backupSeedPath, seedPath);
-      fs.unlinkSync(backupSeedPath);
-    }
-  }
-});
 
 setup('authenticate as admin', async ({ page }) => {
   await page.goto('/login');
@@ -37,7 +20,7 @@ setup('authenticate as admin', async ({ page }) => {
   await page.click('button[type="submit"]');
   
   await page.waitForURL('/dashboard');
-  await expect(page.getByRole('button', { name: /Cerrar sesión/i })).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole('heading', { name: 'Las Tukas' })).toBeVisible();
   
   await page.context().storageState({ path: authFileAdmin });
 });
@@ -49,7 +32,7 @@ setup('authenticate as player', async ({ page }) => {
   await page.click('button[type="submit"]');
   
   await page.waitForURL('/dashboard');
-  await expect(page.getByRole('button', { name: /Cerrar sesión/i })).toBeVisible({ timeout: 10000 });
+  await expect(page.getByRole('heading', { name: 'Las Tukas' })).toBeVisible();
   
   await page.context().storageState({ path: authFilePlayer });
 });

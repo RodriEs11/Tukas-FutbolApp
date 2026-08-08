@@ -5,7 +5,7 @@
 -- ============================================
 
 -- Create test admin user
-INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, aud, role)
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, aud, role, email_change, email_change_token_new, recovery_token)
 VALUES (
   'a1b2c3d4-e5f6-7890-abcd-ef1234567890',
   '00000000-0000-0000-0000-000000000000',
@@ -18,7 +18,10 @@ VALUES (
   NOW(),
   '',
   'authenticated',
-  'authenticated'
+  'authenticated',
+  '',
+  '',
+  ''
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -41,7 +44,7 @@ SET role = 'admin', first_name = 'Admin', last_name = 'Tukas', nickname = 'TestA
 WHERE id = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890';
 
 -- Create test player user
-INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, aud, role)
+INSERT INTO auth.users (id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at, confirmation_token, aud, role, email_change, email_change_token_new, recovery_token)
 VALUES (
   'b2c3d4e5-f6a7-8901-bcde-f12345678901',
   '00000000-0000-0000-0000-000000000000',
@@ -54,7 +57,10 @@ VALUES (
   NOW(),
   '',
   'authenticated',
-  'authenticated'
+  'authenticated',
+  '',
+  '',
+  ''
 )
 ON CONFLICT (id) DO NOTHING;
 
