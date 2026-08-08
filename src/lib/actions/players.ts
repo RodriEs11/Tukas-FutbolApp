@@ -10,6 +10,7 @@ export async function getPlayers(): Promise<UserProfile[]> {
   const { data, error } = await supabase
     .from('user_profiles')
     .select('*')
+    .eq('is_active', true)
     .order('first_name', { ascending: true });
 
   if (error) {
@@ -152,6 +153,22 @@ export async function addPlayer(formData: FormData) {
         .update({ avatar_url: publicUrl })
         .eq('id', newPlayer.id);
     }
+  }
+
+  revalidatePath('/players');
+  return { success: true };
+}
+
+export async function deletePlayer(id: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('user_profiles')
+    .update({ is_active: false })
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
   }
 
   revalidatePath('/players');

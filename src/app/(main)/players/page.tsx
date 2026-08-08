@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { getPlayers } from '@/lib/actions/players';
 import { getCurrentUser } from '@/lib/actions/auth';
 import { AddPlayerModal } from '@/components/players/AddPlayerModal';
+import { DeletePlayerButton } from '@/components/players/DeletePlayerButton';
 import { Search, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -69,9 +70,17 @@ export default async function PlayersPage() {
                       </p>
                     )}
                   </div>
-                  <Badge variant={player.role === 'admin' ? 'warning' : 'default'}>
-                    {player.role === 'admin' ? 'Admin' : 'Jugador'}
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <Badge variant={player.role === 'admin' ? 'warning' : 'default'}>
+                      {player.role === 'admin' ? 'Admin' : 'Jugador'}
+                    </Badge>
+                    {isAdmin && player.id !== currentUser?.id && (
+                      <DeletePlayerButton 
+                        playerId={player.id} 
+                        playerName={`${player.first_name} ${player.last_name}`} 
+                      />
+                    )}
+                  </div>
                 </div>
               </Card>
             </Link>
