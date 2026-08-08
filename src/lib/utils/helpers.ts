@@ -9,6 +9,7 @@ export function formatDate(dateString: string): string {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+    timeZone: 'America/Argentina/Buenos_Aires',
   }).format(new Date(dateString));
 }
 
@@ -23,6 +24,7 @@ export function formatDateTime(dateString: string): string {
     hour: '2-digit',
     minute: '2-digit',
     hour12: false,
+    timeZone: 'America/Argentina/Buenos_Aires',
   }).format(new Date(dateString));
 }
 
