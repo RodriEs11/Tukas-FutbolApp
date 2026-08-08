@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
-import Image from 'next/image';
 import { Trophy, LogOut, User, Settings } from 'lucide-react';
 import { useUser } from '@/lib/hooks/useUser';
 import { getInitials, stringToColor } from '@/lib/utils/helpers';
@@ -15,9 +14,7 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
   '/players': 'Jugadores',
   '/matches': 'Partidos',
-  // '/fields': 'Canchas',
-  '/scorers': 'Goleadores',
-  '/paternidades': 'Paternidades',
+  '/fields': 'Canchas',
   '/profile': 'Mi Perfil',
 };
 
@@ -58,11 +55,11 @@ export function Header() {
     ">
       <div className="flex items-center justify-between h-14 px-4 max-w-3xl mx-auto">
         <div className="flex items-center gap-2.5">
-          <div className="relative flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-border/50 shadow-sm">
-            <Image src="/Logo.jpeg" alt="Las Tukas" fill className="object-cover" />
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 shadow-lg shadow-emerald-500/20">
+            <Trophy size={16} className="text-white" />
           </div>
           <h1 className="text-lg font-bold text-foreground tracking-tight">
-            Las Tukas
+            {title}
           </h1>
         </div>
         
