@@ -15,16 +15,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Tukas — Gestión de Fútbol",
-    template: "%s | Tukas",
+    default: "Las Tukas — Gestión de Fútbol",
+    template: "%s | Las Tukas",
   },
   description:
     "Gestión de jugadores y partidos de fútbol amateur y profesional. Estadísticas, resultados y más.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/Logo.jpeg",
+    apple: "/Logo.jpeg",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Tukas",
+    title: "Las Tukas",
   },
   formatDetection: {
     telephone: false,
@@ -50,7 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
+        <link rel="apple-touch-icon" href="/Logo.jpeg" />
       </head>
       <body className="min-h-full flex flex-col antialiased">
         {/* Inline script to prevent flash of wrong theme */}

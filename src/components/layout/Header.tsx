@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { Avatar } from '@/components/ui/Avatar';
+import Image from 'next/image';
 import { Trophy, LogOut, User, Settings } from 'lucide-react';
 import { useUser } from '@/lib/hooks/useUser';
 import { getInitials, stringToColor } from '@/lib/utils/helpers';
@@ -14,13 +15,15 @@ const pageTitles: Record<string, string> = {
   '/dashboard': 'Inicio',
   '/players': 'Jugadores',
   '/matches': 'Partidos',
-  '/fields': 'Canchas',
+  // '/fields': 'Canchas',
+  '/scorers': 'Goleadores',
+  '/paternidades': 'Paternidades',
   '/profile': 'Mi Perfil',
 };
 
 export function Header() {
   const pathname = usePathname();
-  const { profile } = useUser();
+  const { user, profile, loading } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -55,29 +58,32 @@ export function Header() {
     ">
       <div className="flex items-center justify-between h-14 px-4 max-w-3xl mx-auto">
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-emerald-600 shadow-lg shadow-emerald-500/20">
-            <Trophy size={16} className="text-white" />
+          <div className="relative flex items-center justify-center w-8 h-8 rounded-full overflow-hidden border border-border/50 shadow-sm">
+            <Image src="/Logo.jpeg" alt="Las Tukas" fill className="object-cover" />
           </div>
           <h1 className="text-lg font-bold text-foreground tracking-tight">
-            {title}
+            Las Tukas
           </h1>
         </div>
         
-        <div className="flex items-center gap-1 relative" ref={menuRef}>
-          {profile ? (
+        <div className="flex items-center gap-2 relative" ref={menuRef}>
+          <ThemeToggle />
+          {user || profile ? (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center rounded-full transition-transform active:scale-95 md:hover:scale-105 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 relative z-50 overflow-hidden"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-colors text-sm font-medium relative z-50"
             >
-              <Avatar player={profile} size="sm" className="ring-0" />
+              <User size={14} />
+              <span>Admin</span>
             </button>
           ) : (
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex items-center justify-center w-8 h-8 rounded-full bg-muted transition-transform active:scale-95 md:hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent/50 relative z-50"
+            <Link
+              href="/login"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted hover:bg-muted/80 transition-colors text-sm font-medium text-foreground"
             >
-              <User size={16} className="text-muted-foreground" />
-            </button>
+              <User size={14} />
+              <span>Iniciar Sesión</span>
+            </Link>
           )}
 
           {menuOpen && (
@@ -90,10 +96,7 @@ export function Header() {
                   {profile?.role === 'admin' ? 'Administrador' : 'Jugador'}
                 </p>
               </div>
-              <div className="p-2 flex items-center justify-between border-b border-border/60">
-                <span className="text-sm text-muted-foreground px-2">Tema</span>
-                <ThemeToggle />
-              </div>
+
               <Link
                 href="/profile/edit"
                 onClick={() => setMenuOpen(false)}

@@ -11,7 +11,7 @@ const getNavItems = (isAdmin: boolean) => {
     { href: '/matches', label: 'Partidos', icon: Trophy },
   ];
   if (isAdmin) {
-    items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
+    // items.push({ href: '/fields', label: 'Canchas', icon: MapPin });
   }
   items.push({ href: '/profile', label: 'Perfil', icon: User });
   return items;
