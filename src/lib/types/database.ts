@@ -12,6 +12,7 @@ export interface UserProfile {
   avatar_url: string;
   preferred_foot?: string;
   position?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -87,7 +88,7 @@ export interface Database {
     Tables: {
       user_profiles: {
         Row: UserProfile;
-        Insert: Omit<UserProfile, 'created_at' | 'updated_at'>;
+        Insert: Omit<UserProfile, 'created_at' | 'updated_at' | 'is_active'> & { is_active?: boolean };
         Update: Partial<Omit<UserProfile, 'id' | 'created_at' | 'updated_at'>>;
       };
       fields: {
