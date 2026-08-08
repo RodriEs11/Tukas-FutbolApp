@@ -3,7 +3,8 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { getPlayers } from '@/lib/actions/players';
-import { getPlayerDisplayName } from '@/lib/utils/helpers';
+import { getCurrentUser } from '@/lib/actions/auth';
+import { AddPlayerModal } from '@/components/players/AddPlayerModal';
 import { Search, UserPlus } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -14,6 +15,8 @@ export const metadata: Metadata = {
 
 export default async function PlayersPage() {
   const players = await getPlayers();
+  const currentUser = await getCurrentUser();
+  const isAdmin = currentUser?.role === 'admin';
 
   return (
     <PageContainer>
@@ -27,6 +30,8 @@ export default async function PlayersPage() {
             {players.length} {players.length === 1 ? 'jugador registrado' : 'jugadores registrados'}
           </p>
         </div>
+        
+        {isAdmin && <AddPlayerModal />}
       </div>
 
       {/* Player List */}

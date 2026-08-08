@@ -44,6 +44,8 @@ export async function updatePlayer(formData: FormData) {
   const firstName = formData.get('first_name') as string;
   const lastName = formData.get('last_name') as string;
   const nickname = formData.get('nickname') as string;
+  const preferredFoot = formData.get('preferred_foot') as string;
+  const position = formData.get('position') as string;
 
   const { error } = await supabase
     .from('user_profiles')
@@ -51,8 +53,39 @@ export async function updatePlayer(formData: FormData) {
       first_name: firstName,
       last_name: lastName,
       nickname: nickname || '',
+      preferred_foot: preferredFoot || null,
+      position: position || null,
     } as Record<string, unknown>)
     .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/players');
+  revalidatePath(`/players/${id}`);
+  return { success: true };
+}
+
+export async function addPlayer(formData: FormData) {
+  const supabase = await createClient();
+
+  const firstName = formData.get('first_name') as string;
+  const lastName = formData.get('last_name') as string;
+  const nickname = formData.get('nickname') as string;
+  const preferredFoot = formData.get('preferred_foot') as string;
+  const position = formData.get('position') as string;
+
+  const { error } = await supabase
+    .from('user_profiles')
+    .insert({
+      first_name: firstName,
+      last_name: lastName,
+      nickname: nickname || '',
+      role: 'player',
+      preferred_foot: preferredFoot || null,
+      position: position || null,
+    } as Record<string, unknown>);
 
   if (error) {
     return { error: error.message };

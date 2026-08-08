@@ -95,9 +95,17 @@ export async function createMatch(formData: FormData) {
 
   if (!user) return { error: 'No autorizado' };
 
-  const fieldId = formData.get('field_id') as string;
   const matchDate = formData.get('match_date') as string;
   const notes = formData.get('notes') as string;
+
+  // Fetch the single field to auto-assign
+  const { data: fieldData } = await supabase
+    .from('fields')
+    .select('id')
+    .limit(1)
+    .single();
+
+  const fieldId = fieldData?.id || null;
 
   const { data, error } = await supabase
     .from('matches')
