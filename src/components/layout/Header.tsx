@@ -66,7 +66,8 @@ export function Header() {
           </h1>
         </div>
         
-        <div className="flex items-center gap-1 relative" ref={menuRef}>
+        <div className="flex items-center gap-2 relative" ref={menuRef}>
+          <ThemeToggle />
           {user || profile ? (
             <button
               onClick={() => setMenuOpen(!menuOpen)}
@@ -95,10 +96,7 @@ export function Header() {
                   {profile?.role === 'admin' ? 'Administrador' : 'Jugador'}
                 </p>
               </div>
-              <div className="p-2 flex items-center justify-between border-b border-border/60">
-                <span className="text-sm text-muted-foreground px-2">Tema</span>
-                <ThemeToggle />
-              </div>
+
               <Link
                 href="/profile/edit"
                 onClick={() => setMenuOpen(false)}
