@@ -46,16 +46,56 @@ export async function updatePlayer(formData: FormData) {
   const nickname = formData.get('nickname') as string;
   const preferredFoot = formData.get('preferred_foot') as string;
   const position = formData.get('position') as string;
+  const avatar = formData.get('avatar') as File | null;
+  const removeAvatar = formData.get('remove_avatar') === 'true';
+  const oldAvatarUrl = formData.get('old_avatar_url') as string;
+
+  let newAvatarUrl: string | null = undefined;
+
+  if (removeAvatar) {
+    newAvatarUrl = null;
+    if (oldAvatarUrl) {
+      try {
+        const urlParts = oldAvatarUrl.split('/');
+        const fileName = urlParts[urlParts.length - 1];
+        if (fileName) {
+          await supabase.storage.from('avatars').remove([fileName]);
+        }
+      } catch (err) {
+        console.error('Error removing old avatar:', err);
+      }
+    }
+  } else if (avatar && avatar.size > 0) {
+    const fileExt = avatar.name.split('.').pop();
+    const fileName = `${id}-${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, avatar, { upsert: true });
+      
+    if (!uploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+      newAvatarUrl = publicUrl;
+    }
+  }
+
+  const updateData: Record<string, unknown> = {
+    first_name: firstName,
+    last_name: lastName,
+    nickname: nickname || '',
+    preferred_foot: preferredFoot || null,
+    position: position || null,
+  };
+
+  if (newAvatarUrl !== undefined) {
+    updateData.avatar_url = newAvatarUrl;
+  }
 
   const { error } = await supabase
     .from('user_profiles')
-    .update({
-      first_name: firstName,
-      last_name: lastName,
-      nickname: nickname || '',
-      preferred_foot: preferredFoot || null,
-      position: position || null,
-    } as Record<string, unknown>)
+    .update(updateData)
     .eq('id', id);
 
   if (error) {
@@ -75,8 +115,9 @@ export async function addPlayer(formData: FormData) {
   const nickname = formData.get('nickname') as string;
   const preferredFoot = formData.get('preferred_foot') as string;
   const position = formData.get('position') as string;
+  const avatar = formData.get('avatar') as File | null;
 
-  const { error } = await supabase
+  const { data: newPlayer, error } = await supabase
     .from('user_profiles')
     .insert({
       first_name: firstName,
@@ -85,10 +126,32 @@ export async function addPlayer(formData: FormData) {
       role: 'player',
       preferred_foot: preferredFoot || null,
       position: position || null,
-    } as Record<string, unknown>);
+    } as Record<string, unknown>)
+    .select('id')
+    .single();
 
   if (error) {
     return { error: error.message };
+  }
+
+  if (newPlayer && avatar && avatar.size > 0) {
+    const fileExt = avatar.name.split('.').pop();
+    const fileName = `${newPlayer.id}-${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(fileName, avatar, { upsert: true });
+      
+    if (!uploadError) {
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+        
+      await supabase
+        .from('user_profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', newPlayer.id);
+    }
   }
 
   revalidatePath('/players');

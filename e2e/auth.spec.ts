@@ -9,7 +9,7 @@ test.describe('Autenticación', () => {
     await page.click('button[type="submit"]');
 
     await expect(page).toHaveURL('/dashboard');
-    await expect(page.getByRole('button', { name: /Cerrar sesión/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Las Tukas' })).toBeVisible();
   });
 
   test('debe mostrar error con credenciales inválidas', async ({ page }) => {
