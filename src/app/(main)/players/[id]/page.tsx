@@ -23,6 +23,7 @@ import { PlayerMatchList } from '@/components/players/PlayerMatchList';
 import { EditPlayerModal } from '@/components/players/EditPlayerModal';
 import { PlayerCardModal } from '@/components/players/PlayerCardModal';
 import { calculatePlayerRating } from '@/lib/utils/rating';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -63,6 +64,7 @@ export default async function PlayerDetailPage({
 
   return (
     <PageContainer>
+      <ScrollToTop />
       {/* Top bar: Back + Actions */}
       <div className="flex items-center justify-between mb-6">
         <BackButton fallbackHref="/players" className="" />
