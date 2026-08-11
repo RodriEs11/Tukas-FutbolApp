@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import { getInitials, stringToColor } from '@/lib/utils/helpers';
 import { getCardTier } from '@/lib/utils/rating';
 import type { UserProfile, PlayerStats } from '@/lib/types/database';
@@ -12,10 +12,6 @@ interface PlayerCardProps {
 }
 
 export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState('');
-  const [isHovering, setIsHovering] = useState(false);
-
   const tier = useMemo(() => getCardTier(rating), [rating]);
 
   const winRate =
@@ -28,166 +24,87 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
       ? (stats.goals / stats.matches_played).toFixed(1)
       : '0.0';
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-
-    const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-
-    const rotateX = ((y - centerY) / centerY) * -15;
-    const rotateY = ((x - centerX) / centerX) * 15;
-
-    setTransform(
-      `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
-    );
-  }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
-    setTransform('');
-  }, []);
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      if (!cardRef.current || !e.touches[0]) return;
-
-      const rect = cardRef.current.getBoundingClientRect();
-      const x = e.touches[0].clientX - rect.left;
-      const y = e.touches[0].clientY - rect.top;
-      const centerX = rect.width / 2;
-      const centerY = rect.height / 2;
-
-      const rotateX = ((y - centerY) / centerY) * -10;
-      const rotateY = ((x - centerX) / centerX) * 10;
-
-      setTransform(
-        `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`
-      );
-      setIsHovering(true);
-    },
-    []
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    setIsHovering(false);
-    setTransform('');
-  }, []);
-
   const initials = getInitials(player);
   const bgColor = stringToColor(player.id);
 
-  // Dynamic CSS custom properties based on tier
-  const cardStyle: React.CSSProperties = {
-    '--card-c': tier.color,
-    '--card-c-dark': tier.colorDark,
-    '--card-c-light': tier.colorLight,
-    '--card-c-glow': tier.colorGlow,
-    '--card-bg-start': tier.bgStart,
-    '--card-bg-end': tier.bgEnd,
-    '--card-bg-third': tier.bgThird,
-    '--card-shine-rgb': tier.shineRgb,
-    transform: transform || undefined,
-  } as React.CSSProperties;
-
   return (
     <div
-      ref={cardRef}
-      className={`player-card animate-card-entrance ${
-        isHovering ? 'player-card-tilt' : 'player-card-tilt-reset'
-      }`}
-      style={cardStyle}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      className={`player-card animate-card-entrance tier-${tier.tier}`}
     >
+      <div className="player-card-bg" />
       {/* Shine overlay */}
       <div className="player-card-shine" />
 
       <div className="player-card-content">
-        {/* Rating + Tier label */}
-        <div className="self-start">
-          {rating !== null ? (
-            <>
+        
+        {/* Top Section (Rating + Avatar) */}
+        <div className="flex relative w-full h-[150px]">
+          {/* Left: Stats */}
+          <div className="flex flex-col items-center w-[35%] pt-6 z-10">
+            {rating !== null ? (
               <div className="player-card-rating">{rating}</div>
-              <div className="player-card-tier-label">{tier.label}</div>
-            </>
-          ) : (
-            <>
-              <div className="player-card-rating player-card-rating-unrated">
-                --
-              </div>
-              <div className="player-card-tier-label">{tier.label}</div>
-            </>
-          )}
-        </div>
-
-        {/* Avatar */}
-        {player.avatar_url ? (
-          <img
-            src={player.avatar_url}
-            alt={`${player.first_name} ${player.last_name}`}
-            className="player-card-avatar"
-          />
-        ) : (
-          <div
-            className="player-card-avatar"
-            style={{ backgroundColor: bgColor }}
-          >
-            {initials}
-          </div>
-        )}
-
-        {/* Name section */}
-        <div>
-          <div className="player-card-divider" />
-          <div className="mt-2">
-            <div className="player-card-name">
-              {player.first_name} {player.last_name}
+            ) : (
+              <div className="player-card-rating player-card-rating-unrated">--</div>
+            )}
+            <div className="player-card-tier-label">
+              {player.position ? player.position.substring(0, 3).toUpperCase() : 'POS'}
             </div>
-            {player.nickname && (
-              <div className="player-card-nickname">
-                &quot;{player.nickname}&quot;
+            {player.preferred_foot && (
+              <div className="player-card-foot">
+                {player.preferred_foot.substring(0, 3).toUpperCase()}
               </div>
             )}
           </div>
-          <div className="player-card-divider mt-2" />
+
+          {/* Right: Avatar */}
+          <div className="absolute right-[0px] top-[15px] z-0">
+            {player.avatar_url ? (
+              <img
+                src={player.avatar_url}
+                alt={`${player.first_name} ${player.last_name}`}
+                className="player-card-avatar"
+              />
+            ) : (
+              <div
+                className="player-card-avatar"
+                style={{ backgroundColor: bgColor }}
+              >
+                {initials}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Stats */}
-        <div className="player-card-stats">
+        {/* Name section */}
+        <div className="w-full mt-auto z-10">
+          <div className="player-card-name">
+            {player.first_name} {player.last_name}
+          </div>
+          <div className="player-card-divider" />
+        </div>
+
+        {/* Stats 2x2 Grid */}
+        <div className="player-card-stats z-10">
           <div className="player-card-stat">
             <span className="player-card-stat-value">{golesPerMatch}</span>
             <span className="player-card-stat-label">GOL</span>
+          </div>
+          <div className="player-card-stat">
+            <span className="player-card-stat-value">{stats?.points ?? 0}</span>
+            <span className="player-card-stat-label">PTS</span>
           </div>
           <div className="player-card-stat">
             <span className="player-card-stat-value">{winRate}%</span>
             <span className="player-card-stat-label">VIC</span>
           </div>
           <div className="player-card-stat">
-            <span className="player-card-stat-value">
-              {stats?.points ?? 0}
-            </span>
-            <span className="player-card-stat-label">PTS</span>
-          </div>
-          <div className="player-card-stat">
-            <span className="player-card-stat-value">
-              {stats?.matches_played ?? 0}
-            </span>
+            <span className="player-card-stat-value">{stats?.matches_played ?? 0}</span>
             <span className="player-card-stat-label">PJ</span>
           </div>
         </div>
 
         {/* Brand */}
-        <div className="player-card-brand">⚽ Tukas</div>
+        <div className="player-card-brand mt-4 z-10">⚽ TUKAS</div>
       </div>
     </div>
   );
