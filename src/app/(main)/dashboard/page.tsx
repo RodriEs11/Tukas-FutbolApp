@@ -153,7 +153,7 @@ export default async function DashboardPage() {
         ) : (
           <Card padding="none">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_repeat(6,_2.5rem)] gap-1 px-4 py-2.5 text-xs font-medium text-muted-foreground border-b border-border">
+            <div className="grid grid-cols-[1fr_repeat(6,_1.75rem)] gap-1 px-4 py-2.5 text-xs font-medium text-muted-foreground border-b border-border">
               <span>Jugador</span>
               <span className="text-center">PJ</span>
               <span className="text-center">PG</span>
@@ -167,10 +167,10 @@ export default async function DashboardPage() {
               {leaderboard.slice(0, 10).map((stat, index) => (
                 <Link key={stat.player.id} href={`/players/${stat.player.id}`} className="block">
                   <div
-                    className="grid grid-cols-[1fr_repeat(6,_2.5rem)] gap-1 px-4 py-2.5 items-center hover:bg-muted/30 transition-colors"
+                    className="grid grid-cols-[1fr_repeat(6,_1.75rem)] gap-1 px-4 py-2.5 items-center hover:bg-muted/30 transition-colors"
                   >
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-xs font-bold text-muted-foreground w-4">
+                      <span className="text-xs font-bold text-muted-foreground w-4 shrink-0 text-center">
                         {index + 1}
                       </span>
                       <Avatar player={stat.player} size="sm" />
