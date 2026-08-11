@@ -7,8 +7,9 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Input } from '@/components/ui/Input';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
-import { addPlayersToMatch, removePlayerFromMatch, updateMatchPlayer } from '@/lib/actions/matches';
-import { Plus, Minus, UserMinus, Search, X } from 'lucide-react';
+import { removePlayerFromMatch, updateMatchPlayer } from '@/lib/actions/matches';
+import { Plus, Minus, UserMinus } from 'lucide-react';
+import { AddPlayersToMatchModal } from '@/components/matches/AddPlayersToMatchModal';
 import type { UserProfile, MatchPlayer } from '@/lib/types/database';
 
 interface MatchTeamAdminProps {
@@ -44,38 +45,6 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
     (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
   );
 
-  const filteredPlayers = availablePlayers.filter(p => 
-    getPlayerDisplayName(p).toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  function togglePlayerSelection(playerId: string) {
-    setSelectedPlayers(prev => 
-      prev.includes(playerId) 
-        ? prev.filter(id => id !== playerId)
-        : [...prev, playerId]
-    );
-  }
-
-  async function handleAddPlayers() {
-    if (selectedPlayers.length === 0) return;
-    setIsAddingPlayers(true);
-    
-    const result = await addPlayersToMatch(matchId, selectedPlayers, team);
-    
-    if (result?.error) {
-      alert(result.error);
-    } else if (result?.success) {
-      if (result.duplicatesCount && result.duplicatesCount > 0) {
-        alert(`Se añadieron ${result.addedCount} jugadores. ${result.duplicatesCount} ya estaban en un equipo y fueron omitidos.`);
-      }
-      setIsModalOpen(false);
-      setSelectedPlayers([]);
-      setSearchQuery('');
-    }
-    
-    setIsAddingPlayers(false);
-  }
-
   async function handleRemovePlayer(playerId: string) {
     if (!confirm('¿Seguro que deseas eliminar a este jugador del partido?')) return;
     setLoadingDeleteId(playerId);
@@ -105,8 +74,8 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
         <h3 className="text-sm font-semibold text-foreground">
           {teamName}
         </h3>
-        <span className="text-xs text-muted-foreground">
-          ({matchPlayers.length})
+        <span className="text-xs text-muted-foreground font-medium">
+          ({matchPlayers.length}/8)
         </span>
       </div>
 
@@ -117,9 +86,10 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
             fullWidth 
             onClick={() => setIsModalOpen(true)}
             className="border-dashed"
+            disabled={matchPlayers.length >= 8}
           >
             <Plus size={16} />
-            Añadir jugadores
+            {matchPlayers.length >= 8 ? 'Límite alcanzado' : 'Añadir jugadores'}
           </Button>
         </div>
       )}
@@ -202,93 +172,16 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
           </div>
         </Card>
       )}
-
-      {/* Multi-select Modal */}
-      {isModalOpen && mounted && createPortal(
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-in fade-in">
-          <div className="bg-card w-full max-w-md rounded-2xl shadow-xl border border-border flex flex-col max-h-[85vh]">
-            
-            {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <h2 className="text-lg font-semibold text-foreground">
-                Añadir al {teamName}
-              </h2>
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                className="text-muted-foreground hover:text-foreground transition-colors p-1"
-              >
-                <X size={20} />
-              </button>
-            </div>
-            
-            {/* Modal Search */}
-            <div className="p-4 border-b border-border">
-              <div className="relative">
-                <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
-                <Input
-                  placeholder="Buscar jugador..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Players List */}
-            <div className="flex-1 overflow-y-auto p-2">
-              {filteredPlayers.length === 0 ? (
-                <p className="text-center text-sm text-muted-foreground py-8">
-                  No se encontraron jugadores.
-                </p>
-              ) : (
-                <div className="space-y-1">
-                  {filteredPlayers.map(p => {
-                    const isSelected = selectedPlayers.includes(p.id);
-                    return (
-                      <div
-                        key={p.id}
-                        onClick={() => togglePlayerSelection(p.id)}
-                        className={`
-                          flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors
-                          ${isSelected ? 'bg-accent/10 border-accent/20' : 'hover:bg-muted/50'}
-                        `}
-                      >
-                        <div className={`
-                          w-5 h-5 rounded-md border flex items-center justify-center
-                          ${isSelected ? 'bg-accent border-accent text-accent-foreground' : 'border-input bg-background'}
-                        `}>
-                          {isSelected && <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
-                        </div>
-                        <Avatar player={p} size="sm" />
-                        <span className={`text-sm font-medium ${isSelected ? 'text-foreground' : 'text-muted-foreground'}`}>
-                          {getPlayerDisplayName(p)}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Modal Footer */}
-            <div className="p-4 border-t border-border flex gap-3">
-              <Button variant="ghost" className="flex-1" onClick={() => setIsModalOpen(false)}>
-                Cancelar
-              </Button>
-              <Button 
-                className="flex-1" 
-                onClick={handleAddPlayers}
-                disabled={selectedPlayers.length === 0 || isAddingPlayers}
-                isLoading={isAddingPlayers}
-              >
-                Añadir {selectedPlayers.length > 0 ? `(${selectedPlayers.length})` : ''}
-              </Button>
-            </div>
-            
-          </div>
-        </div>,
-        document.body
-      )}
+      {/* Add Players Modal */}
+      <AddPlayersToMatchModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        teamName={teamName}
+        team={team}
+        matchId={matchId}
+        availablePlayers={availablePlayers}
+        currentTeamSize={matchPlayers.length}
+      />
     </div>
   );
 }

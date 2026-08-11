@@ -29,18 +29,7 @@ export async function generateMetadata({
   return { title: `Partido — ${formatDateTime(match.match_date)}` };
 }
 
-function getStatusVariant(status: string) {
-  switch (status) {
-    case 'scheduled':
-      return 'info' as const;
-    case 'played':
-      return 'success' as const;
-    case 'cancelled':
-      return 'danger' as const;
-    default:
-      return 'default' as const;
-  }
-}
+
 
 export default async function MatchDetailPage({
   params,
@@ -88,47 +77,7 @@ export default async function MatchDetailPage({
         allPlayers={allPlayers}
         isAdmin={isAdmin}
         isPlayed={isPlayed}
-      >
-        <div className="text-center mb-6 animate-fade-in relative">
-          <Badge variant={getStatusVariant(match.status)} className="mb-3">
-            {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
-          </Badge>
-
-          {/* Score */}
-          {match.status === 'played' && (
-            <div className="flex items-center justify-center gap-4 my-4">
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Equipo A</p>
-                <p className="text-5xl font-black text-foreground">
-                  {match.score_team_a}
-                </p>
-              </div>
-              <span className="text-2xl text-muted-foreground font-light">—</span>
-              <div className="text-center">
-                <p className="text-xs text-muted-foreground mb-1">Equipo B</p>
-                <p className="text-5xl font-black text-foreground">
-                  {match.score_team_b}
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Date */}
-          <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-            <CalendarDays size={14} />
-            {formatDateTime(match.match_date)}
-          </div>
-
-          {/* Location */}
-          {match.field && (
-            <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mt-1">
-              <MapPin size={14} />
-              {match.field.name}
-              {match.field.location ? ` — ${match.field.location}` : ''}
-            </div>
-          )}
-        </div>
-      </MatchAdminWrapper>
+      />
     </PageContainer>
   );
 }
