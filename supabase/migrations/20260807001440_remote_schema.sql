@@ -53,7 +53,7 @@ GRANT ALL ON FUNCTION public.handle_new_user() TO authenticated;
 
 GRANT ALL ON FUNCTION public.handle_new_user() TO service_role;
 
-CREATE FUNCTION public.is_admin (
+CREATE OR REPLACE FUNCTION public.is_admin (
   user_id uuid
 )
   RETURNS boolean
@@ -73,7 +73,7 @@ GRANT ALL ON FUNCTION public.is_admin(uuid) TO authenticated;
 
 GRANT ALL ON FUNCTION public.is_admin(uuid) TO service_role;
 
-CREATE FUNCTION public.update_updated_at()
+CREATE OR REPLACE FUNCTION public.update_updated_at()
   RETURNS TRIGGER
   LANGUAGE plpgsql
   AS $function$
@@ -89,7 +89,7 @@ GRANT ALL ON FUNCTION public.update_updated_at() TO authenticated;
 
 GRANT ALL ON FUNCTION public.update_updated_at() TO service_role;
 
-CREATE TABLE public.fields (
+CREATE TABLE IF NOT EXISTS public.fields (
   id           uuid                     DEFAULT gen_random_uuid() NOT NULL,
   name         text                     NOT NULL,
   location     text                     DEFAULT ''::text,
@@ -141,7 +141,7 @@ CREATE POLICY "Anyone authenticated can view fields" ON public.fields
   TO authenticated
   USING (true);
 
-CREATE TABLE public.match_players (
+CREATE TABLE IF NOT EXISTS public.match_players (
   id         uuid                     DEFAULT gen_random_uuid() NOT NULL,
   match_id   uuid                     NOT NULL,
   player_id  uuid                     NOT NULL,
@@ -193,7 +193,7 @@ CREATE POLICY "Anyone authenticated can view match_players" ON public.match_play
   TO authenticated
   USING (true);
 
-CREATE TABLE public.matches (
+CREATE TABLE IF NOT EXISTS public.matches (
   id           uuid                     DEFAULT gen_random_uuid() NOT NULL,
   field_id     uuid,
   match_date   timestamp with time zone NOT NULL,
@@ -258,7 +258,7 @@ CREATE POLICY "Anyone authenticated can view matches" ON public.matches
   TO authenticated
   USING (true);
 
-CREATE TABLE public.user_profiles (
+CREATE TABLE IF NOT EXISTS public.user_profiles (
   id         uuid                     NOT NULL,
   first_name text                     DEFAULT ''::text NOT NULL,
   last_name  text                     DEFAULT ''::text NOT NULL,

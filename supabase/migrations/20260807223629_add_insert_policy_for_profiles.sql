@@ -1,3 +1,4 @@
+DROP POLICY IF EXISTS "Admins can insert profiles" ON public.user_profiles;
 CREATE POLICY "Admins can insert profiles" ON public.user_profiles
   FOR INSERT
   TO authenticated
