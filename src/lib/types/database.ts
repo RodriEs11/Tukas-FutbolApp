@@ -52,6 +52,7 @@ export interface MatchPlayer {
   team: Team;
   goals: number;
   attended: boolean;
+  pitch_position?: string | null;
   created_at: string;
   // Joined data
   player?: UserProfile;
