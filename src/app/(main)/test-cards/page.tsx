@@ -14,7 +14,9 @@ export default function TestCardsPage() {
     role: 'player',
     created_at: new Date().toISOString(),
     email: 'test@tukas.com',
-  } as UserProfile;
+    is_active: true,
+    updated_at: new Date().toISOString(),
+  } as unknown as UserProfile;
 
   const mockStats = {
     player_id: 'test-123',
@@ -24,7 +26,13 @@ export default function TestCardsPage() {
     losses: 2,
     goals: 25,
     points: 48,
-  } as PlayerStats;
+    player: {
+      first_name: 'LIONEL',
+      last_name: 'MESSI',
+      nickname: 'La Pulga',
+      avatar_url: null
+    }
+  } as unknown as PlayerStats;
 
   const tiers = [
     { title: 'Sin Clasificar (< 3 partidos)', rating: null },
