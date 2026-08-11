@@ -649,3 +649,14 @@ input:-webkit-autofill:focus {
   perspective: 1000px;
 }
 
+
+@keyframes ios-shake {
+  0% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+  100% { transform: rotate(-3deg); }
+}
+
+.animate-ios-shake {
+  animation: ios-shake 0.25s linear infinite;
+}
+

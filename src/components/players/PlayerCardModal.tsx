@@ -11,8 +11,28 @@ import type { UserProfile } from '@/lib/types/database';
 // I'll check what types are available or just use any.
 // Let's use `any` for stats temporarily, or try to import it. Let me just use `any` for stats to avoid build errors if the type is slightly different.
 
-export function PlayerCardModal({ player, stats, rating }: { player: UserProfile; stats: any; rating: number | null }) {
-  const [isOpen, setIsOpen] = useState(false);
+export function PlayerCardModal({ 
+  player, 
+  stats, 
+  rating,
+  isOpenProp,
+  onCloseProp,
+  customTrigger
+}: { 
+  player: UserProfile; 
+  stats: any; 
+  rating: number | null;
+  isOpenProp?: boolean;
+  onCloseProp?: () => void;
+  customTrigger?: React.ReactNode;
+}) {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isOpen = isOpenProp !== undefined ? isOpenProp : internalIsOpen;
+  
+  const handleClose = () => {
+    if (onCloseProp) onCloseProp();
+    else setInternalIsOpen(false);
+  };
   const [mounted, setMounted] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -83,7 +103,7 @@ export function PlayerCardModal({ player, stats, rating }: { player: UserProfile
     
     // Close on escape key
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') handleClose();
     };
 
     if (isOpen) {
@@ -101,11 +121,11 @@ export function PlayerCardModal({ player, stats, rating }: { player: UserProfile
     <div className="fixed inset-0 bg-black/80 z-[100] flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in"
          onClick={(e) => {
            // Close if clicking outside the card wrapper
-           if (e.target === e.currentTarget) setIsOpen(false);
+           if (e.target === e.currentTarget) handleClose();
          }}
     >
       <button
-        onClick={() => setIsOpen(false)}
+        onClick={handleClose}
         className="absolute top-6 right-6 p-2 rounded-full bg-white/10 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-300 z-[110]"
       >
         <X size={24} />
@@ -139,18 +159,24 @@ export function PlayerCardModal({ player, stats, rating }: { player: UserProfile
 
   return (
     <>
-      <button
-        onClick={() => setIsOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
-        style={{
-          color: '#d4a853',
-          backgroundColor: 'rgba(212, 168, 83, 0.1)',
-          borderColor: 'rgba(212, 168, 83, 0.3)',
-        }}
-      >
-        <Star size={14} />
-        Ver Carta
-      </button>
+      {customTrigger ? (
+        <div onClick={() => setInternalIsOpen(true)} className="contents">
+          {customTrigger}
+        </div>
+      ) : (
+        <button
+          onClick={() => setInternalIsOpen(true)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
+          style={{
+            color: '#d4a853',
+            backgroundColor: 'rgba(212, 168, 83, 0.1)',
+            borderColor: 'rgba(212, 168, 83, 0.3)',
+          }}
+        >
+          <Star size={14} />
+          Ver Carta
+        </button>
+      )}
 
       {mounted && isOpen && createPortal(modalContent, document.body)}
     </>
