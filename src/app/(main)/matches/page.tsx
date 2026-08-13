@@ -9,6 +9,7 @@ import { MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { CalendarPlus, MapPin, Users, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { CancelMatchButton } from './CancelMatchButton';
 
 export const metadata: Metadata = {
   title: 'Partidos',
@@ -91,6 +92,11 @@ export default async function MatchesPage() {
                       <Badge variant={getStatusVariant(match.status)}>
                         {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
                       </Badge>
+                      {isAdmin && match.status === 'scheduled' && (
+                        <div className="ml-auto z-10 relative">
+                          <CancelMatchButton matchId={match.id} />
+                        </div>
+                      )}
                     </div>
 
                     {/* Date & Time */}
