@@ -10,22 +10,11 @@ import { GraphicalLineupAdmin } from './GraphicalLineupAdmin';
 import { TEAM_LABELS, MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { Badge } from '@/components/ui/Badge';
 import { MapPin, CalendarDays, Edit3 } from 'lucide-react';
-import { formatDateTime } from '@/lib/utils/helpers';
+import { formatDateTime, getMatchStatusVariant } from '@/lib/utils/helpers';
 import { EditMatchDateModal } from '@/components/matches/EditMatchDateModal';
 import type { Match, MatchPlayer, UserProfile } from '@/lib/types/database';
 
-function getStatusVariant(status: string) {
-  switch (status) {
-    case 'scheduled':
-      return 'info' as const;
-    case 'played':
-      return 'success' as const;
-    case 'cancelled':
-      return 'danger' as const;
-    default:
-      return 'default' as const;
-  }
-}
+
 
 interface MatchAdminWrapperProps {
   match: Match;
@@ -74,7 +63,7 @@ export function MatchAdminWrapper({
 
       {/* Match Header */}
       <div className="text-center mb-6 animate-fade-in relative">
-        <Badge variant={getStatusVariant(match.status)} className="mb-3">
+        <Badge variant={getMatchStatusVariant(match.status)} className="mb-3">
           {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
         </Badge>
 

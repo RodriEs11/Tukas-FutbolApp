@@ -4,7 +4,7 @@ import { PageContainer } from '@/components/layout/PageContainer';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { getMatches } from '@/lib/actions/matches';
-import { formatDateTime } from '@/lib/utils/helpers';
+import { formatDateTime, getMatchStatusVariant } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { CalendarPlus, MapPin, Users, Trophy } from 'lucide-react';
 import Link from 'next/link';
@@ -15,18 +15,6 @@ export const metadata: Metadata = {
   title: 'Partidos',
 };
 
-function getStatusVariant(status: string) {
-  switch (status) {
-    case 'scheduled':
-      return 'info' as const;
-    case 'played':
-      return 'success' as const;
-    case 'cancelled':
-      return 'danger' as const;
-    default:
-      return 'default' as const;
-  }
-}
 
 export default async function MatchesPage() {
   const [matches, user] = await Promise.all([
@@ -89,7 +77,7 @@ export default async function MatchesPage() {
                   <div className="flex-1 min-w-0">
                     {/* Status + Date */}
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={getStatusVariant(match.status)}>
+                      <Badge variant={getMatchStatusVariant(match.status)}>
                         {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
                       </Badge>
                       {isAdmin && match.status === 'scheduled' && (

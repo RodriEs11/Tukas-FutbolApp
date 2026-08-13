@@ -107,3 +107,19 @@ export function stringToColor(str: string): string {
 export function pluralize(count: number, singular: string, plural: string): string {
   return count === 1 ? `${count} ${singular}` : `${count} ${plural}`;
 }
+
+/**
+ * Get the badge variant based on match status
+ */
+export function getMatchStatusVariant(status: string) {
+  switch (status) {
+    case 'scheduled':
+      return 'info' as const;
+    case 'played':
+      return 'success' as const;
+    case 'cancelled':
+      return 'danger' as const;
+    default:
+      return 'default' as const;
+  }
+}

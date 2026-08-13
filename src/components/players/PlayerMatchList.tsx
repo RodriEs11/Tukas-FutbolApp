@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { formatDateTime } from '@/lib/utils/helpers';
+import { formatDateTime, getMatchStatusVariant } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { MapPin, Users, ChevronLeft, ChevronRight, Trophy } from 'lucide-react';
 import type { Match } from '@/lib/types/database';
@@ -14,18 +14,7 @@ interface PlayerMatchListProps {
   matches: Match[];
 }
 
-function getStatusVariant(status: string) {
-  switch (status) {
-    case 'scheduled':
-      return 'info' as const;
-    case 'played':
-      return 'success' as const;
-    case 'cancelled':
-      return 'danger' as const;
-    default:
-      return 'default' as const;
-  }
-}
+
 
 export function PlayerMatchList({ matches }: PlayerMatchListProps) {
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,7 +42,7 @@ export function PlayerMatchList({ matches }: PlayerMatchListProps) {
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-2">
-                    <Badge variant={getStatusVariant(match.status)}>
+                    <Badge variant={getMatchStatusVariant(match.status)}>
                       {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS] || match.status}
                     </Badge>
                   </div>

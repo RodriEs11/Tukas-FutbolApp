@@ -4,7 +4,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { getUpcomingMatches, getLeaderboard, getLastMatch } from '@/lib/actions/stats';
 import { getCurrentUser } from '@/lib/actions/auth';
-import { formatDateTime, getPlayerDisplayName, pluralize } from '@/lib/utils/helpers';
+import { formatDateTime, getPlayerDisplayName, pluralize, getMatchStatusVariant } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import {
   CalendarDays,
@@ -50,7 +50,7 @@ export default async function DashboardPage() {
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
-                    <Badge variant="success">
+                    <Badge variant={getMatchStatusVariant(lastMatch.status)}>
                       {MATCH_STATUS_LABELS[lastMatch.status as keyof typeof MATCH_STATUS_LABELS]}
                     </Badge>
                     <span className="text-sm font-bold text-foreground ml-2">
@@ -101,7 +101,7 @@ export default async function DashboardPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <Badge variant="info">
+                        <Badge variant={getMatchStatusVariant(match.status)}>
                           {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
                         </Badge>
                         {match.match_players && (
