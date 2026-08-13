@@ -162,6 +162,21 @@ export async function addPlayer(formData: FormData) {
 export async function deletePlayer(id: string) {
   const supabase = await createClient();
 
+  // Validate that the player exists and is not an admin
+  const { data: playerToVerify, error: fetchError } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !playerToVerify) {
+    return { error: 'No se pudo encontrar el jugador.' };
+  }
+
+  if (playerToVerify.role === 'admin') {
+    return { error: 'No se puede eliminar a un administrador.' };
+  }
+
   const { error } = await supabase
     .from('user_profiles')
     .update({ is_active: false })

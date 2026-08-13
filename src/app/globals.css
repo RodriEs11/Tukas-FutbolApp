@@ -235,20 +235,166 @@ input:-webkit-autofill:focus {
    --card-bg-third, --card-shine-rgb
    ============================================ */
 
+/* --- TIER THEMES --- */
+.tier-gold {
+  --pc-bg-top: #fced98;
+  --pc-bg-mid: #dfb755;
+  --pc-bg-dark: #87611a;
+  --pc-base-top: #dfb755;
+  --pc-base-mid: #fced98;
+  --pc-base-dark: #c4993a;
+  --pc-base-bottom: #765616;
+  --pc-text-main: #3b2a0c;
+  --pc-text-dark: #2b1d07;
+  --pc-text-light: #4a3411;
+  --pc-divider: rgba(74, 52, 17, 0.3);
+  --pc-brand: rgba(59, 42, 12, 0.5);
+  --pc-shadow: rgba(255,255,255,0.3);
+}
+
+.tier-elite {
+  --pc-bg-top: #1a2a3a;
+  --pc-bg-mid: #0d1620;
+  --pc-bg-dark: #05090e;
+  --pc-base-top: #0a131c;
+  --pc-base-mid: #142434;
+  --pc-base-dark: #070d14;
+  --pc-base-bottom: #000000;
+  --pc-text-main: #00f0ff; 
+  --pc-text-dark: #ffffff; 
+  --pc-text-light: #00b3cc; 
+  --pc-divider: rgba(0, 240, 255, 0.3);
+  --pc-brand: rgba(0, 240, 255, 0.5);
+  --pc-shadow: rgba(0,240,255,0.4);
+  --elite-clip: polygon(
+    50% 0%, 48% 1.6%, 46% 2.7%, 44% 3.3%, 42% 3.5%, 38% 3.2%, 34% 2.8%, 30% 2.5%, 25% 2.8%, 20% 3.5%, 15% 4.5%, 10% 6%, 5% 8.5%, 0% 12%,
+    0% 78%,
+    1% 82%, 2% 85%, 3.5% 88%, 5% 90%, 7.5% 92%, 10% 93.5%, 14% 94.5%, 20% 95.2%, 28% 95.6%, 35% 96.4%, 40% 97.4%, 44% 98.4%, 47% 99.2%,
+    50% 100%,
+    53% 99.2%, 56% 98.4%, 60% 97.4%, 65% 96.4%, 72% 95.6%, 80% 95.2%, 86% 94.5%, 90% 93.5%, 92.5% 92%, 95% 90%, 96.5% 88%, 98% 85%, 99% 82%,
+    100% 78%,
+    100% 12%,
+    95% 8.5%, 90% 6%, 85% 4.5%, 80% 3.5%, 75% 2.8%, 70% 2.5%, 66% 2.8%, 62% 3.2%, 58% 3.5%, 56% 3.3%, 54% 2.7%, 52% 1.6%
+  );
+}
+
+.tier-silver {
+  --pc-bg-top: #e0e5ec;
+  --pc-bg-mid: #aeb9c4;
+  --pc-bg-dark: #6e7c8a;
+  --pc-base-top: #b5c0cb;
+  --pc-base-mid: #e8ecf1;
+  --pc-base-dark: #8c9cae;
+  --pc-base-bottom: #4a5562;
+  --pc-text-main: #2c3540;
+  --pc-text-dark: #1a2128;
+  --pc-text-light: #3d4a57;
+  --pc-divider: rgba(44, 53, 64, 0.3);
+  --pc-brand: rgba(44, 53, 64, 0.5);
+  --pc-shadow: rgba(255,255,255,0.5);
+}
+
+.tier-bronze {
+  --pc-bg-top: #d89664;
+  --pc-bg-mid: #b86e3b;
+  --pc-bg-dark: #663616;
+  --pc-base-top: #c07a46;
+  --pc-base-mid: #e6a777;
+  --pc-base-dark: #965224;
+  --pc-base-bottom: #4d240d;
+  --pc-text-main: #2b1406;
+  --pc-text-dark: #170a02;
+  --pc-text-light: #421e0b;
+  --pc-divider: rgba(43, 20, 6, 0.3);
+  --pc-brand: rgba(43, 20, 6, 0.5);
+  --pc-shadow: rgba(255,255,255,0.2);
+}
+
+.tier-unrated {
+  --pc-bg-top: #3a3a3a;
+  --pc-bg-mid: #222222;
+  --pc-bg-dark: #111111;
+  --pc-base-top: #2a2a2a;
+  --pc-base-mid: #444444;
+  --pc-base-dark: #1a1a1a;
+  --pc-base-bottom: #0a0a0a;
+  --pc-text-main: #888888;
+  --pc-text-dark: #cccccc;
+  --pc-text-light: #666666;
+  --pc-divider: rgba(136, 136, 136, 0.3);
+  --pc-brand: rgba(136, 136, 136, 0.5);
+  --pc-shadow: rgba(0,0,0,0.5);
+}
+
 .player-card {
   position: relative;
   width: 280px;
-  aspect-ratio: 3 / 4;
-  border-radius: 16px;
-  background: linear-gradient(145deg, var(--card-bg-start) 0%, var(--card-bg-end) 50%, var(--card-bg-third) 100%);
-  border: 2px solid var(--card-c);
-  box-shadow:
-    0 0 30px -5px var(--card-c-glow),
-    0 20px 60px -15px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(var(--card-shine-rgb), 0.15);
+  aspect-ratio: 5 / 7;
+  clip-path: polygon(
+    50% 0%, 45% 0.1%, 40% 0.5%, 35% 1.1%, 30% 2%, 25% 3.1%, 20% 4.5%, 15% 6.1%, 10% 8%,
+    9% 9.5%, 7.5% 11%, 5.5% 12.2%, 3.5% 13.1%, 1.5% 13.7%, 0% 14%,
+    0% 78%,
+    1% 82%, 2% 85%, 3.5% 88%, 5% 90%, 7.5% 92%, 10% 93.5%, 14% 94.5%, 20% 95.2%, 28% 95.6%, 35% 96.4%, 40% 97.4%, 44% 98.4%, 47% 99.2%,
+    50% 100%,
+    53% 99.2%, 56% 98.4%, 60% 97.4%, 65% 96.4%, 72% 95.6%, 80% 95.2%, 86% 94.5%, 90% 93.5%, 92.5% 92%, 95% 90%, 96.5% 88%, 98% 85%, 99% 82%,
+    100% 78%,
+    100% 14%, 98.5% 13.7%, 96.5% 13.1%, 94.5% 12.2%, 92.5% 11%, 91% 9.5%, 90% 8%,
+    85% 6.1%, 80% 4.5%, 75% 3.1%, 70% 2%, 65% 1.1%, 60% 0.5%, 55% 0.1%
+  );
   overflow: hidden;
   transform-style: preserve-3d;
   will-change: transform;
+}
+
+.player-card-bg {
+  position: absolute;
+  inset: 0;
+  clip-path: inherit;
+  background: 
+    linear-gradient(to bottom, transparent 55%, var(--pc-base-top) 55%, var(--pc-base-mid) 60%, var(--pc-base-dark) 80%, var(--pc-base-bottom) 100%),
+    repeating-conic-gradient(from 45deg at 10% 50%, 
+      var(--pc-bg-top) 0deg, 
+      var(--pc-bg-mid) 10deg, 
+      var(--pc-bg-dark) 20deg, 
+      var(--pc-bg-top) 30deg
+    );
+  background-blend-mode: normal, normal;
+  z-index: 0;
+}
+
+.player-card.tier-elite {
+  clip-path: var(--elite-clip);
+  background: linear-gradient(135deg, var(--pc-text-main) 0%, var(--pc-text-light) 50%, var(--pc-text-main) 100%);
+}
+
+.player-card.tier-elite::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  clip-path: inherit;
+  background: #000;
+  z-index: 0;
+}
+
+.player-card.tier-elite .player-card-bg {
+  inset: 2.5px;
+  background: linear-gradient(135deg, var(--pc-text-main) 0%, var(--pc-text-light) 50%, var(--pc-text-main) 100%);
+}
+
+.player-card.tier-elite .player-card-bg::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  clip-path: inherit;
+  background: 
+    linear-gradient(to bottom, transparent 55%, var(--pc-base-top) 55%, var(--pc-base-mid) 60%, var(--pc-base-dark) 80%, var(--pc-base-bottom) 100%),
+    repeating-conic-gradient(from 45deg at 10% 50%, 
+      var(--pc-bg-top) 0deg, 
+      var(--pc-bg-mid) 10deg, 
+      var(--pc-bg-dark) 20deg, 
+      var(--pc-bg-top) 30deg
+    );
+  background-blend-mode: normal, normal;
 }
 
 .player-card::before {
@@ -292,113 +438,116 @@ input:-webkit-autofill:focus {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 16px 16px;
+  padding: 15% 10% 8%;
 }
 
 .player-card-rating {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 900;
   line-height: 1;
-  color: var(--card-c-light);
-  text-shadow: 0 2px 8px var(--card-c-glow);
-  letter-spacing: -0.02em;
+  color: var(--pc-text-main);
+  text-shadow: 1px 1px 0px var(--pc-shadow);
+  letter-spacing: -0.05em;
 }
 
 .player-card-rating-unrated {
   font-size: 2.5rem;
-  color: var(--card-c-dark);
+  color: var(--pc-text-main);
   opacity: 0.7;
 }
 
 .player-card-tier-label {
-  font-size: 0.55rem;
-  font-weight: 700;
-  color: var(--card-c);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--pc-text-main);
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.05em;
+  margin-top: -4px;
+}
+
+.player-card-foot {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pc-text-main);
   margin-top: 2px;
 }
 
 .player-card-avatar {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
-  border: 2px solid var(--card-c);
-  box-shadow: 0 0 20px -5px var(--card-c-glow);
+  width: 140px;
+  height: 140px;
   object-fit: cover;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2rem;
+  font-size: 3rem;
   font-weight: 700;
-  color: white;
+  color: var(--pc-text-main);
+  /* Masking image to fade out at bottom to blend with gold */
+  -webkit-mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 70%, transparent 100%);
 }
 
 .player-card-name {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--card-c-light);
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--pc-text-dark);
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  line-height: 1.2;
+  letter-spacing: 0.05em;
+  line-height: 1;
 }
 
 .player-card-nickname {
-  font-size: 0.7rem;
-  color: var(--card-c);
+  font-size: 0.8rem;
+  color: var(--pc-text-light);
   text-align: center;
-  opacity: 0.8;
   font-style: italic;
   margin-top: 2px;
 }
 
 .player-card-divider {
-  width: 60%;
+  width: 85%;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--card-c), transparent);
-  margin: 0 auto;
+  background: var(--pc-divider);
+  margin: 6px auto;
 }
 
 .player-card-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 2px;
-  width: 100%;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px 20px;
+  width: 85%;
+  margin: 0 auto;
 }
 
 .player-card-stat {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  gap: 2px;
 }
 
 .player-card-stat-value {
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   font-weight: 800;
-  color: var(--card-c-light);
+  color: var(--pc-text-dark);
   line-height: 1;
 }
 
 .player-card-stat-label {
-  font-size: 0.55rem;
+  font-size: 1rem;
   font-weight: 600;
-  color: var(--card-c);
+  color: var(--pc-text-light);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.8;
 }
 
 .player-card-brand {
   font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--card-c-dark);
+  font-weight: 800;
+  color: var(--pc-brand);
   text-transform: uppercase;
   letter-spacing: 0.25em;
-  opacity: 0.6;
+  text-align: center;
+  margin-top: auto;
 }
 
 .player-card-shine {
@@ -477,5 +626,37 @@ input:-webkit-autofill:focus {
     height: 72px;
     font-size: 1.6rem;
   }
+}
+
+/* 3D Flip Animation */
+@keyframes flip-in-3d {
+  from {
+    opacity: 0;
+    transform: rotateY(90deg) scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: rotateY(0deg) scale(1);
+  }
+}
+
+.animate-flip-in-3d {
+  animation: flip-in-3d 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  transform-style: preserve-3d;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+
+@keyframes ios-shake {
+  0% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+  100% { transform: rotate(-3deg); }
+}
+
+.animate-ios-shake {
+  animation: ios-shake 0.25s linear infinite;
 }
 

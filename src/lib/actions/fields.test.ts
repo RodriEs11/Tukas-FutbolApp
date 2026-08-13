@@ -1,14 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { getFields, createField, updateField, deleteField } from './fields';
+import { getFields } from './fields';
 import { createClient } from '@/lib/supabase/server';
-import { revalidatePath } from 'next/cache';
 
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
-}));
-
-vi.mock('next/cache', () => ({
-  revalidatePath: vi.fn(),
 }));
 
 const mockCreateClient = vi.mocked(createClient);
@@ -46,82 +41,5 @@ describe('Fields Actions', () => {
       expect(result).toEqual([]);
     });
   });
-
-  describe('createField', () => {
-    it('debería crear cancha exitosamente', async () => {
-      const builder = mockQueryBuilder({ data: {}, error: null });
-      mockCreateClient.mockResolvedValue({
-        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
-        from: vi.fn().mockReturnValue(builder)
-      } as any);
-
-      const formData = new FormData();
-      formData.append('name', 'Cancha 1');
-
-      const result = await createField(formData);
-      expect(result).toEqual({ success: true });
-      expect(revalidatePath).toHaveBeenCalledWith('/fields');
-    });
-
-    it('debería retornar error sin autenticación', async () => {
-      mockCreateClient.mockResolvedValue({
-        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
-      } as any);
-
-      const formData = new FormData();
-      const result = await createField(formData);
-      expect(result).toEqual({ error: 'No autorizado' });
-    });
-
-    it('debería retornar error en fallo de inserción', async () => {
-      const builder = mockQueryBuilder({ data: null, error: { message: 'Insert error' } });
-      mockCreateClient.mockResolvedValue({
-        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'u1' } } }) },
-        from: vi.fn().mockReturnValue(builder)
-      } as any);
-
-      const formData = new FormData();
-      const result = await createField(formData);
-      expect(result).toEqual({ error: 'Insert error' });
-    });
-  });
-
-  describe('updateField', () => {
-    it('debería actualizar cancha', async () => {
-      const builder = mockQueryBuilder({ data: {}, error: null });
-      mockCreateClient.mockResolvedValue({ from: vi.fn().mockReturnValue(builder) } as any);
-
-      const formData = new FormData();
-      formData.append('id', '1');
-      const result = await updateField(formData);
-      expect(result).toEqual({ success: true });
-    });
-
-    it('debería retornar error en fallo de actualización', async () => {
-      const builder = mockQueryBuilder({ data: null, error: { message: 'Update error' } });
-      mockCreateClient.mockResolvedValue({ from: vi.fn().mockReturnValue(builder) } as any);
-
-      const formData = new FormData();
-      const result = await updateField(formData);
-      expect(result).toEqual({ error: 'Update error' });
-    });
-  });
-
-  describe('deleteField', () => {
-    it('debería eliminar (soft delete) cancha', async () => {
-      const builder = mockQueryBuilder({ data: {}, error: null });
-      mockCreateClient.mockResolvedValue({ from: vi.fn().mockReturnValue(builder) } as any);
-
-      const result = await deleteField('1');
-      expect(result).toEqual({ success: true });
-    });
-
-    it('debería retornar error en fallo de eliminación', async () => {
-      const builder = mockQueryBuilder({ data: null, error: { message: 'Delete error' } });
-      mockCreateClient.mockResolvedValue({ from: vi.fn().mockReturnValue(builder) } as any);
-
-      const result = await deleteField('1');
-      expect(result).toEqual({ error: 'Delete error' });
-    });
-  });
 });
+

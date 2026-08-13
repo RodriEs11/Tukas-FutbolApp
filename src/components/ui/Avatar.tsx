@@ -23,7 +23,7 @@ export function Avatar({ player, size = 'md', className = '' }: AvatarProps) {
         src={player.avatar_url}
         alt={`${player.first_name} ${player.last_name}`}
         className={`
-          ${sizeStyles[size]} rounded-full object-cover
+          ${sizeStyles[size]} rounded-full object-cover shrink-0
           ${className}
         `}
       />
@@ -33,7 +33,7 @@ export function Avatar({ player, size = 'md', className = '' }: AvatarProps) {
   return (
     <div
       className={`
-        ${sizeStyles[size]} rounded-full
+        ${sizeStyles[size]} rounded-full shrink-0
         flex items-center justify-center
         font-semibold text-white
         ${className}
