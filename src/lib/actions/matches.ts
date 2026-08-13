@@ -367,3 +367,23 @@ export async function updateMatchPlayersBulk(updates: { id: string; pitch_positi
   }
   return { success: true };
 }
+
+export async function cancelMatch(matchId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('matches')
+    .update({
+      status: 'cancelled',
+    } as Record<string, unknown>)
+    .eq('id', matchId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/matches');
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath('/dashboard');
+  return { success: true };
+}
