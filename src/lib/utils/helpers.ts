@@ -57,6 +57,7 @@ export function calculatePlayerStats(
     (mp) => mp.player_id === player.id && mp.attended
   );
 
+  let matchesPlayed = 0;
   let wins = 0;
   let draws = 0;
   let losses = 0;
@@ -66,6 +67,7 @@ export function calculatePlayerStats(
     const match = matches.find((m) => m.id === mp.match_id);
     if (!match || match.status !== 'played') return;
 
+    matchesPlayed++;
     goals += mp.goals;
 
     const playerTeamScore = mp.team === 'A' ? match.score_team_a : match.score_team_b;
@@ -78,7 +80,7 @@ export function calculatePlayerStats(
 
   return {
     player,
-    matches_played: playerMatches.length,
+    matches_played: matchesPlayed,
     goals,
     wins,
     draws,
