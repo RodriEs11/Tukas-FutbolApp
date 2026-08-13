@@ -156,6 +156,23 @@ export async function updateMatch(formData: FormData) {
   return { success: true };
 }
 
+export async function updateMatchDate(id: string, matchDate: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('matches')
+    .update({ match_date: matchDate })
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/matches');
+  revalidatePath(`/matches/${id}`);
+  return { success: true };
+}
+
 export async function deleteMatch(id: string) {
   const supabase = await createClient();
 
@@ -306,5 +323,67 @@ export async function finishMatch(matchId: string) {
   revalidatePath(`/matches/${matchId}`);
   revalidatePath('/dashboard');
   revalidatePath('/players');
+  return { success: true };
+}
+
+export async function updateMatchPlayerPosition(id: string, pitchPosition: string | null) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('match_players')
+    .update({ pitch_position: pitchPosition } as Record<string, unknown>)
+    .eq('id', id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return { success: true };
+}
+
+export async function updateMatchPlayersBulk(updates: { id: string; pitch_position: string | null }[], matchId?: string) {
+  const supabase = await createClient();
+
+  // Supabase update many is tricky without a custom RPC, but we can loop since it's only up to 8 players.
+  // We can do Promise.all
+  const promises = updates.map(update => 
+    supabase
+      .from('match_players')
+      .update({ pitch_position: update.pitch_position } as Record<string, unknown>)
+      .eq('id', update.id)
+  );
+
+  const results = await Promise.all(promises);
+  
+  const hasError = results.some(res => res.error);
+  if (hasError) {
+    const error = results.find(res => res.error)?.error;
+    return { error: error?.message || 'Error updating positions' };
+  }
+
+  revalidatePath('/matches');
+  if (matchId) {
+    revalidatePath(`/matches/${matchId}`);
+  }
+  return { success: true };
+}
+
+export async function cancelMatch(matchId: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from('matches')
+    .update({
+      status: 'cancelled',
+    } as Record<string, unknown>)
+    .eq('id', matchId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath('/matches');
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath('/dashboard');
   return { success: true };
 }

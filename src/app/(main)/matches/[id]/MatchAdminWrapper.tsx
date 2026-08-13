@@ -1,13 +1,31 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/Button';
 import { Pencil, X, CheckCircle2 } from 'lucide-react';
 import { MatchTeamAdmin } from './MatchTeamAdmin';
 import { FinishMatchButton } from './FinishMatchButton';
-import { TEAM_LABELS } from '@/lib/utils/constants';
+import { GraphicalLineupAdmin } from './GraphicalLineupAdmin';
+import { TEAM_LABELS, MATCH_STATUS_LABELS } from '@/lib/utils/constants';
+import { Badge } from '@/components/ui/Badge';
+import { MapPin, CalendarDays, Edit3 } from 'lucide-react';
+import { formatDateTime } from '@/lib/utils/helpers';
+import { EditMatchDateModal } from '@/components/matches/EditMatchDateModal';
 import type { Match, MatchPlayer, UserProfile } from '@/lib/types/database';
+
+function getStatusVariant(status: string) {
+  switch (status) {
+    case 'scheduled':
+      return 'info' as const;
+    case 'played':
+      return 'success' as const;
+    case 'cancelled':
+      return 'danger' as const;
+    default:
+      return 'default' as const;
+  }
+}
 
 interface MatchAdminWrapperProps {
   match: Match;
@@ -17,7 +35,6 @@ interface MatchAdminWrapperProps {
   allPlayers: UserProfile[];
   isAdmin: boolean;
   isPlayed: boolean;
-  children: React.ReactNode; // The header/score component to wrap
 }
 
 export function MatchAdminWrapper({
@@ -27,12 +44,18 @@ export function MatchAdminWrapper({
   allMatchPlayers,
   allPlayers,
   isAdmin,
-  isPlayed,
-  children
+  isPlayed
 }: MatchAdminWrapperProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [viewMode, setViewMode] = useState<'list' | 'graphical'>('graphical');
+  const [graphicalTeam, setGraphicalTeam] = useState<'A' | 'B'>('A');
   const [showToast, setShowToast] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isDateModalOpen, setIsDateModalOpen] = useState(false);
+  
+  const graphicalContainerRef = useRef<HTMLDivElement>(null);
+  const saveActionRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -47,31 +70,64 @@ export function MatchAdminWrapper({
 
   return (
     <div className="relative">
-      {isAdmin && (
-        <div className="absolute top-0 right-0 z-10 animate-fade-in">
-          <Button 
-            variant="secondary" 
-            size="sm" 
-            onClick={() => setIsEditing(!isEditing)}
-            className="flex items-center gap-2"
-          >
-            {isEditing ? (
-              <>
-                <X size={16} />
-                <span className="hidden sm:inline">Cancelar Edición</span>
-              </>
-            ) : (
-              <>
-                <Pencil size={16} />
-                <span className="hidden sm:inline">Editar Partido</span>
-              </>
-            )}
-          </Button>
-        </div>
-      )}
+      {/* Removed absolute Edit Button */}
 
-      {/* Render the Score Header passed as children */}
-      {children}
+      {/* Match Header */}
+      <div className="text-center mb-6 animate-fade-in relative">
+        <Badge variant={getStatusVariant(match.status)} className="mb-3">
+          {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
+        </Badge>
+
+        {/* Score */}
+        {match.status === 'played' && (
+          <div className="flex items-center justify-center gap-4 my-4">
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">Equipo A</p>
+              <p className="text-5xl font-black text-foreground">
+                {match.score_team_a}
+              </p>
+            </div>
+            <span className="text-2xl text-muted-foreground font-light">—</span>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">Equipo B</p>
+              <p className="text-5xl font-black text-foreground">
+                {match.score_team_b}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Date */}
+        <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+          <CalendarDays size={14} />
+          <span>{formatDateTime(match.match_date)}</span>
+          {isAdmin && (
+            <button 
+              onClick={() => setIsDateModalOpen(true)}
+              className="p-1 hover:bg-muted hover:text-foreground rounded-full transition-colors ml-1"
+              title="Editar Fecha y Hora"
+            >
+              <Edit3 size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Location */}
+        {match.field && (
+          <div className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground mt-1">
+            <MapPin size={14} />
+            {match.field.name}
+            {match.field.location ? ` — ${match.field.location}` : ''}
+          </div>
+        )}
+      </div>
+
+      <EditMatchDateModal 
+        matchId={match.id}
+        currentDate={match.match_date}
+        isOpen={isDateModalOpen}
+        onClose={() => setIsDateModalOpen(false)}
+      />
 
       {/* Notes */}
       {match.notes && (
@@ -82,31 +138,168 @@ export function MatchAdminWrapper({
         </div>
       )}
 
-      {/* Teams */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-up delay-1 mb-6 mt-4">
-        <MatchTeamAdmin 
-          matchId={match.id}
-          team="A"
-          teamName={TEAM_LABELS.A}
-          matchPlayers={teamA}
-          allMatchPlayers={allMatchPlayers}
-          allPlayers={allPlayers}
-          isAdmin={isAdmin}
-          isEditing={isAdmin && isEditing}
-          isPlayed={isPlayed}
-        />
-        <MatchTeamAdmin 
-          matchId={match.id}
-          team="B"
-          teamName={TEAM_LABELS.B}
-          matchPlayers={teamB}
-          allMatchPlayers={allMatchPlayers}
-          allPlayers={allPlayers}
-          isAdmin={isAdmin}
-          isEditing={isAdmin && isEditing}
-          isPlayed={isPlayed}
-        />
+      {/* Controls Header: Team Selector and Edit Button */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center mb-4">
+        <div /> {/* Spacer to balance the grid */}
+        
+        {/* Team Selector */}
+        <div className="flex gap-2 animate-fade-in justify-center" ref={graphicalContainerRef}>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={async () => {
+                if (graphicalTeam !== 'A' && hasUnsavedChanges && saveActionRef.current) {
+                  await saveActionRef.current();
+                }
+                setGraphicalTeam('A');
+              }}
+              className={graphicalTeam === 'A' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
+            >
+              {TEAM_LABELS.A}
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={async () => {
+                if (graphicalTeam !== 'B' && hasUnsavedChanges && saveActionRef.current) {
+                  await saveActionRef.current();
+                }
+                setGraphicalTeam('B');
+              }}
+              className={graphicalTeam === 'B' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
+            >
+              {TEAM_LABELS.B}
+            </Button>
+          </div>
+        {/* Edit Match Button */}
+        <div className="flex justify-end animate-fade-in">
+          {isAdmin && (
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              onClick={async () => {
+                if (isEditing) {
+                  // Finalizando edición, guardar pendiente si hay
+                  if (hasUnsavedChanges && saveActionRef.current) {
+                    await saveActionRef.current();
+                  }
+                  setIsEditing(false);
+                } else {
+                  setIsEditing(true);
+                  if (viewMode === 'graphical') {
+                    setTimeout(() => {
+                      graphicalContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 100);
+                  }
+                }
+              }}
+              className="flex items-center gap-2"
+            >
+              {isEditing ? (
+                <>
+                  <CheckCircle2 size={16} />
+                  <span className="hidden sm:inline">Terminar Edición</span>
+                </>
+              ) : (
+                <>
+                  <Pencil size={16} />
+                  <span className="hidden sm:inline">Editar Partido</span>
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* View Toggle (Cancha / Lista) */}
+      {isAdmin && isEditing && (
+        <div className="flex justify-center mb-6 animate-slide-up delay-1">
+          <div className="bg-muted p-1 rounded-lg inline-flex">
+            <button
+              onClick={async () => {
+                if (hasUnsavedChanges && saveActionRef.current) {
+                  await saveActionRef.current();
+                }
+                setViewMode('graphical');
+                setTimeout(() => {
+                  graphicalContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 100);
+              }}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'graphical' 
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Cancha
+            </button>
+            <button
+              onClick={async () => {
+                if (hasUnsavedChanges && saveActionRef.current) {
+                  await saveActionRef.current();
+                }
+                setViewMode('list');
+              }}
+              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                viewMode === 'list' 
+                  ? 'bg-background text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              Lista
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Teams Content */}
+      {viewMode === 'list' ? (
+        <div className="animate-slide-up delay-1 mb-6 mt-4 max-w-2xl mx-auto">
+          {graphicalTeam === 'A' ? (
+            <MatchTeamAdmin 
+              matchId={match.id}
+              team="A"
+              teamName={TEAM_LABELS.A}
+              matchPlayers={teamA}
+              allMatchPlayers={allMatchPlayers}
+              allPlayers={allPlayers}
+              isAdmin={isAdmin}
+              isEditing={isAdmin && isEditing}
+              isPlayed={isPlayed}
+            />
+          ) : (
+            <MatchTeamAdmin 
+              matchId={match.id}
+              team="B"
+              teamName={TEAM_LABELS.B}
+              matchPlayers={teamB}
+              allMatchPlayers={allMatchPlayers}
+              allPlayers={allPlayers}
+              isAdmin={isAdmin}
+              isEditing={isAdmin && isEditing}
+              isPlayed={isPlayed}
+            />
+          )}
+        </div>
+      ) : (
+        <div className="mb-6 animate-fade-in">
+          <GraphicalLineupAdmin
+            matchId={match.id}
+            team={graphicalTeam}
+            matchPlayers={graphicalTeam === 'A' ? teamA : teamB}
+            availablePlayers={allPlayers.filter(
+              (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
+            )}
+            isEditing={isAdmin && isEditing}
+            onUnsavedChangesChange={(hasUnsaved, saveAction) => {
+              setHasUnsavedChanges(hasUnsaved);
+              if (saveAction) {
+                saveActionRef.current = saveAction;
+              }
+            }}
+          />
+        </div>
+      )}
 
       {/* Admin Actions */}
       {isAdmin && isEditing && (

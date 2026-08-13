@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { getPlayer } from '@/lib/actions/players';
-import { getPlayerStats } from '@/lib/actions/stats';
+import { getPlayerStats, getMaxMatchesPlayed } from '@/lib/actions/stats';
 import { getPlayerMatches } from '@/lib/actions/matches';
 import { getCurrentUser } from '@/lib/actions/auth';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
@@ -21,6 +21,9 @@ import {
 import { BackButton } from '@/components/ui/BackButton';
 import { PlayerMatchList } from '@/components/players/PlayerMatchList';
 import { EditPlayerModal } from '@/components/players/EditPlayerModal';
+import { PlayerCardModal } from '@/components/players/PlayerCardModal';
+import { calculatePlayerRating } from '@/lib/utils/rating';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -40,14 +43,17 @@ export default async function PlayerDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [player, stats, matches, currentUser] = await Promise.all([
+  const [player, stats, matches, currentUser, maxMatches] = await Promise.all([
     getPlayer(id),
     getPlayerStats(id),
     getPlayerMatches(id),
     getCurrentUser(),
+    getMaxMatchesPlayed(),
   ]);
 
   if (!player) notFound();
+  
+  const rating = stats ? calculatePlayerRating(stats, maxMatches) : null;
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -58,23 +64,13 @@ export default async function PlayerDetailPage({
 
   return (
     <PageContainer>
+      <ScrollToTop />
       {/* Top bar: Back + Actions */}
       <div className="flex items-center justify-between mb-6">
         <BackButton fallbackHref="/players" className="" />
         <div className="flex items-center gap-2">
           {isAdmin && <EditPlayerModal player={player} />}
-          <Link
-            href={`/players/${id}/card`}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg border transition-all duration-200 hover:shadow-[0_0_16px_-4px_rgba(212,168,83,0.4)]"
-            style={{
-              color: '#d4a853',
-              backgroundColor: 'rgba(212, 168, 83, 0.1)',
-              borderColor: 'rgba(212, 168, 83, 0.3)',
-            }}
-          >
-            <Star size={14} />
-            Ver Carta
-          </Link>
+          <PlayerCardModal player={player} stats={stats} rating={rating} />
         </div>
       </div>
 
