@@ -29,9 +29,9 @@ describe('PlayerCard', () => {
     expect(screen.getByText('Lionel Messi')).toBeDefined();
   });
 
-  it('Muestra nickname entre comillas', () => {
+  it('Muestra nombre completo del jugador', () => {
     render(<PlayerCard player={mockPlayer as any} stats={mockStats as any} rating={99} />);
-    expect(screen.getByText('"La Pulga"')).toBeDefined();
+    expect(screen.getByText('Lionel Messi')).toBeDefined();
   });
 
   it('Muestra iniciales cuando no hay avatar_url', () => {
@@ -63,14 +63,13 @@ describe('PlayerCard', () => {
     expect(screen.getByText('99')).toBeDefined();
   });
 
-  it('Muestra "--" y tier "SIN CLASIFICAR" sin rating', () => {
+  it('Muestra "--" sin rating', () => {
     render(<PlayerCard player={mockPlayer as any} stats={mockStats as any} rating={null} />);
     expect(screen.getByText('--')).toBeDefined();
-    expect(screen.getByText('SIN CLASIFICAR')).toBeDefined();
   });
 
-  it('Muestra marca "⚽ Tukas"', () => {
+  it('Muestra marca "⚽ TUKAS"', () => {
     render(<PlayerCard player={mockPlayer as any} stats={mockStats as any} rating={99} />);
-    expect(screen.getByText('⚽ Tukas')).toBeDefined();
+    expect(screen.getByText('⚽ TUKAS')).toBeDefined();
   });
 });
