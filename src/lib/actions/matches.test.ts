@@ -252,9 +252,20 @@ describe('matches actions', () => {
 
   describe('addPlayerToMatch', () => {
     it('debería agregar un jugador al partido', async () => {
-      const builder = mockQueryBuilder({ data: null, error: null });
+      const builderExisting = mockQueryBuilder({ data: [], error: null });
+      const builderTeamPositions = mockQueryBuilder({ data: [], error: null });
+      const builderProfiles = mockQueryBuilder({ data: [{ id: 'player1', position: 'Delantero', preferred_foot: 'Derecha' }], error: null });
+      const builderInsert = mockQueryBuilder({ data: null, error: null });
+
+      let fromCall = 0;
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockReturnValue(builder),
+        from: vi.fn().mockImplementation((table: string) => {
+          fromCall++;
+          if (table === 'user_profiles') return builderProfiles;
+          if (fromCall === 1) return builderExisting;
+          if (fromCall === 2) return builderTeamPositions;
+          return builderInsert;
+        }),
       });
 
       const result = await addPlayerToMatch('1', 'player1', 'A');
@@ -263,32 +274,47 @@ describe('matches actions', () => {
     });
 
     it('debería retornar error si falla al agregar jugador', async () => {
-      const builder = mockQueryBuilder({ data: null, error: new Error('add error') });
+      const builderExisting = mockQueryBuilder({ data: [{ player_id: 'player1' }], error: null });
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockReturnValue(builder),
+        from: vi.fn().mockReturnValue(builderExisting),
       });
 
       const result = await addPlayerToMatch('1', 'player1', 'A');
-      expect(result).toEqual({ error: 'add error' });
+      expect(result).toEqual({ error: 'Todos los jugadores seleccionados ya están en un equipo.' });
     });
   });
 
   describe('addPlayersToMatch', () => {
-    it('debería agregar varios jugadores', async () => {
+    it('debería agregar varios jugadores con asignación de posición', async () => {
       const builderExisting = mockQueryBuilder({ data: [{ player_id: 'player1' }], error: null });
+      const builderTeamPositions = mockQueryBuilder({ data: [{ pitch_position: 'gk' }], error: null });
+      const builderProfiles = mockQueryBuilder({
+        data: [{ id: 'player2', position: 'Defensa', preferred_foot: 'Izquierda' }],
+        error: null,
+      });
       const builderInsert = mockQueryBuilder({ data: null, error: null });
       
       let fromCall = 0;
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockImplementation(() => {
+        from: vi.fn().mockImplementation((table: string) => {
           fromCall++;
-          return fromCall === 1 ? builderExisting : builderInsert;
+          if (table === 'user_profiles') return builderProfiles;
+          if (fromCall === 1) return builderExisting;
+          if (fromCall === 2) return builderTeamPositions;
+          return builderInsert;
         }),
       });
 
       const result = await addPlayersToMatch('1', ['player1', 'player2'], 'A');
       expect(result).toEqual({ success: true, addedCount: 1, duplicatesCount: 1 });
       expect(revalidatePath).toHaveBeenCalledWith('/matches/1');
+      expect(builderInsert.insert).toHaveBeenCalledWith([
+        expect.objectContaining({
+          player_id: 'player2',
+          team: 'A',
+          pitch_position: 'def-l',
+        }),
+      ]);
     });
 
     it('debería retornar error si todos los jugadores ya están', async () => {
@@ -303,13 +329,18 @@ describe('matches actions', () => {
 
     it('debería retornar error si falla la inserción', async () => {
       const builderExisting = mockQueryBuilder({ data: [], error: null });
+      const builderTeamPositions = mockQueryBuilder({ data: [], error: null });
+      const builderProfiles = mockQueryBuilder({ data: [], error: null });
       const builderInsert = mockQueryBuilder({ data: null, error: new Error('insert error') });
       
       let fromCall = 0;
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockImplementation(() => {
+        from: vi.fn().mockImplementation((table: string) => {
           fromCall++;
-          return fromCall === 1 ? builderExisting : builderInsert;
+          if (table === 'user_profiles') return builderProfiles;
+          if (fromCall === 1) return builderExisting;
+          if (fromCall === 2) return builderTeamPositions;
+          return builderInsert;
         }),
       });
 

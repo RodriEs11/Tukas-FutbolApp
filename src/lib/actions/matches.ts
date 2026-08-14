@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 import type { Match } from '@/lib/types/database';
+import { assignPitchPositionsBatch } from '@/lib/utils/pitchPositioning';
 
 export async function getMatches(): Promise<Match[]> {
   const supabase = await createClient();
@@ -187,23 +188,10 @@ export async function deleteMatch(id: string) {
 }
 
 export async function addPlayerToMatch(matchId: string, playerId: string, team: 'A' | 'B') {
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from('match_players')
-    .insert({
-      match_id: matchId,
-      player_id: playerId,
-      team,
-      goals: 0,
-      attended: true,
-    } as Record<string, unknown>);
-
-  if (error) {
-    return { error: error.message };
+  const result = await addPlayersToMatch(matchId, [playerId], team);
+  if (result.error) {
+    return { error: result.error };
   }
-
-  revalidatePath(`/matches/${matchId}`);
   return { success: true };
 }
 
@@ -223,12 +211,39 @@ export async function addPlayersToMatch(matchId: string, playerIds: string[], te
     return { error: 'Todos los jugadores seleccionados ya están en un equipo.' };
   }
 
+  // Get occupied pitch positions in this team
+  const { data: teamPlayers } = await supabase
+    .from('match_players')
+    .select('pitch_position')
+    .eq('match_id', matchId)
+    .eq('team', team);
+
+  const occupiedPositions = teamPlayers?.map((tp) => tp.pitch_position) || [];
+
+  // Fetch player profile data to assign positions based on their preferences
+  const { data: profiles } = await supabase
+    .from('user_profiles')
+    .select('id, position, preferred_foot')
+    .in('id', newPlayerIds);
+
+  const orderedProfiles = newPlayerIds.map((id) => {
+    const prof = profiles?.find((p) => p.id === id);
+    return {
+      id,
+      position: prof?.position,
+      preferred_foot: prof?.preferred_foot,
+    };
+  });
+
+  const positionAssignments = assignPitchPositionsBatch(orderedProfiles, occupiedPositions);
+
   const payload = newPlayerIds.map((playerId) => ({
     match_id: matchId,
     player_id: playerId,
     team,
     goals: 0,
     attended: true,
+    pitch_position: positionAssignments.get(playerId) || null,
   }));
 
   const { error } = await supabase
