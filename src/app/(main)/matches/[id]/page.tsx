@@ -16,6 +16,7 @@ import { getPlayers } from '@/lib/actions/players';
 import { MatchTeamAdmin } from './MatchTeamAdmin';
 import { FinishMatchButton } from './FinishMatchButton';
 import { MatchAdminWrapper } from './MatchAdminWrapper';
+import { MatchCommentsSection } from '@/components/matches/MatchCommentsSection';
 import type { Metadata } from 'next';
 
 export async function generateMetadata({
@@ -78,6 +79,9 @@ export default async function MatchDetailPage({
         isAdmin={isAdmin}
         isPlayed={isPlayed}
       />
+
+      {/* Comments Section */}
+      <MatchCommentsSection matchId={id} isAdmin={isAdmin} />
     </PageContainer>
   );
 }

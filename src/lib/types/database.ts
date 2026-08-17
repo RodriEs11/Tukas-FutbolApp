@@ -83,6 +83,30 @@ export interface PaternityStat {
     net_wins: number;
   }[];
 }
+
+export interface CommentMedia {
+  id: string;
+  comment_id: string;
+  file_key: string;
+  file_type: 'image' | 'video';
+  file_name: string;
+  file_size: number;
+  mime_type: string;
+  created_at: string;
+}
+
+export interface MatchComment {
+  id: string;
+  match_id: string;
+  parent_id?: string | null;
+  nickname: string;
+  content: string;
+  created_at: string;
+  // Joined data
+  comment_media?: CommentMedia[];
+  replies?: MatchComment[];
+}
+
 // Supabase Database type helper
 export interface Database {
   public: {
@@ -106,6 +130,16 @@ export interface Database {
         Row: MatchPlayer;
         Insert: Omit<MatchPlayer, 'id' | 'created_at' | 'player'>;
         Update: Partial<Omit<MatchPlayer, 'id' | 'created_at' | 'player'>>;
+      };
+      match_comments: {
+        Row: MatchComment;
+        Insert: Omit<MatchComment, 'id' | 'created_at' | 'comment_media'>;
+        Update: Partial<Omit<MatchComment, 'id' | 'created_at' | 'comment_media'>>;
+      };
+      comment_media: {
+        Row: CommentMedia;
+        Insert: Omit<CommentMedia, 'id' | 'created_at'>;
+        Update: Partial<Omit<CommentMedia, 'id' | 'created_at'>>;
       };
     };
     Views: {
