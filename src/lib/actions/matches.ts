@@ -412,8 +412,6 @@ export async function updateMatchPlayerPosition(id: string, pitchPosition: strin
 export async function updateMatchPlayersBulk(updates: { id: string; pitch_position: string | null }[], matchId?: string) {
   const supabase = await createClient();
 
-  // Supabase update many is tricky without a custom RPC, but we can loop since it's only up to 8 players.
-  // We can do Promise.all
   const promises = updates.map(update => 
     supabase
       .from('match_players')
@@ -433,6 +431,34 @@ export async function updateMatchPlayersBulk(updates: { id: string; pitch_positi
   if (matchId) {
     revalidatePath(`/matches/${matchId}`);
   }
+  return { success: true };
+}
+
+export async function updateMatchPlayersGoalsBulk(updates: { id: string; goals: number }[], matchId?: string) {
+  if (updates.length === 0) return { success: true };
+  const supabase = await createClient();
+
+  const promises = updates.map(update =>
+    supabase
+      .from('match_players')
+      .update({ goals: update.goals, attended: true } as Record<string, unknown>)
+      .eq('id', update.id)
+  );
+
+  const results = await Promise.all(promises);
+
+  const hasError = results.some(res => res.error);
+  if (hasError) {
+    const error = results.find(res => res.error)?.error;
+    return { error: error?.message || 'Error updating goals' };
+  }
+
+  revalidatePath('/matches');
+  if (matchId) {
+    revalidatePath(`/matches/${matchId}`);
+  }
+  revalidatePath('/scorers');
+  revalidatePath('/dashboard');
   return { success: true };
 }
 

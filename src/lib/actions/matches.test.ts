@@ -12,6 +12,7 @@ import {
   removePlayerFromMatch,
   finishMatch,
   setTeamGoalkeeper,
+  updateMatchPlayersGoalsBulk,
 } from './matches';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -488,6 +489,26 @@ describe('matches actions', () => {
 
       const result = await setTeamGoalkeeper('match1', 'A', 'p1');
       expect(result).toEqual({ error: 'fetch error' });
+    });
+  });
+
+  describe('updateMatchPlayersGoalsBulk', () => {
+    it('debería retornar success si el array de updates está vacío', async () => {
+      const result = await updateMatchPlayersGoalsBulk([]);
+      expect(result).toEqual({ success: true });
+    });
+
+    it('debería actualizar goles en lote y revalidar rutas', async () => {
+      const builder = mockQueryBuilder({ data: null, error: null });
+      (createClient as any).mockResolvedValue({
+        from: vi.fn().mockReturnValue(builder),
+      });
+
+      const result = await updateMatchPlayersGoalsBulk([{ id: 'mp1', goals: 3 }, { id: 'mp2', goals: 1 }], 'match1');
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/match1');
+      expect(revalidatePath).toHaveBeenCalledWith('/scorers');
     });
   });
 });
