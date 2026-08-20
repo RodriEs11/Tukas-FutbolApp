@@ -2,7 +2,7 @@ import React from 'react';
 import { useDroppable } from '@dnd-kit/core';
 
 export const PITCH_ZONES = [
-  { id: 'gk', label: 'POR', style: { bottom: '5%', left: '50%', transform: 'translateX(-50%)' } },
+  { id: 'gk', label: 'ARQ', style: { bottom: '5%', left: '50%', transform: 'translateX(-50%)' } },
   { id: 'def-l', label: 'DFI', style: { bottom: '25%', left: '20%', transform: 'translateX(-50%)' } },
   { id: 'def-c', label: 'DFC', style: { bottom: '22%', left: '50%', transform: 'translateX(-50%)' } },
   { id: 'def-r', label: 'DFD', style: { bottom: '25%', left: '80%', transform: 'translateX(-50%)' } },

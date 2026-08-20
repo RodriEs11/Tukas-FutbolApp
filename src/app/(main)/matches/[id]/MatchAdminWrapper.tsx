@@ -4,9 +4,10 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/Button';
 import { Pencil, X, CheckCircle2 } from 'lucide-react';
-import { MatchTeamAdmin } from './MatchTeamAdmin';
 import { FinishMatchButton } from './FinishMatchButton';
 import { GraphicalLineupAdmin } from './GraphicalLineupAdmin';
+import { MatchRosters } from './MatchRosters';
+import { finishMatch } from '@/lib/actions/matches';
 import { TEAM_LABELS, MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { Badge } from '@/components/ui/Badge';
 import { MapPin, CalendarDays, Edit3 } from 'lucide-react';
@@ -47,7 +48,6 @@ export function MatchAdminWrapper({
   isPlayed
 }: MatchAdminWrapperProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [viewMode, setViewMode] = useState<'list' | 'graphical'>('graphical');
   const [graphicalTeam, setGraphicalTeam] = useState<'A' | 'B'>('A');
   const [showToast, setShowToast] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -55,13 +55,24 @@ export function MatchAdminWrapper({
   const [isDateModalOpen, setIsDateModalOpen] = useState(false);
   
   const graphicalContainerRef = useRef<HTMLDivElement>(null);
-  const saveActionRef = useRef<(() => Promise<void>) | null>(null);
+  const pitchSaveActionRef = useRef<(() => Promise<void>) | null>(null);
+  const rostersSaveActionRef = useRef<(() => Promise<void>) | null>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleSuccess = () => {
+  const saveAllPending = async () => {
+    if (pitchSaveActionRef.current) {
+      await pitchSaveActionRef.current();
+    }
+    if (rostersSaveActionRef.current) {
+      await rostersSaveActionRef.current();
+    }
+  };
+
+  const handleSuccess = async () => {
+    await saveAllPending();
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
     setIsEditing(false);
@@ -70,8 +81,6 @@ export function MatchAdminWrapper({
 
   return (
     <div className="relative">
-      {/* Removed absolute Edit Button */}
-
       {/* Match Header */}
       <div className="text-center mb-6 animate-fade-in relative">
         <Badge variant={getStatusVariant(match.status)} className="mb-3">
@@ -138,62 +147,63 @@ export function MatchAdminWrapper({
         </div>
       )}
 
-      {/* Controls Header: Team Selector and Edit Button */}
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center mb-4">
-        <div /> {/* Spacer to balance the grid */}
-        
+      {/* Controls Header: Team Selector (Centered) and Edit Button */}
+      <div className="relative flex items-center justify-center mb-4 w-full min-h-[36px]">
         {/* Team Selector */}
-        <div className="flex gap-2 animate-fade-in justify-center" ref={graphicalContainerRef}>
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={async () => {
-                if (graphicalTeam !== 'A' && hasUnsavedChanges && saveActionRef.current) {
-                  await saveActionRef.current();
-                }
-                setGraphicalTeam('A');
-              }}
-              className={graphicalTeam === 'A' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
-            >
-              {TEAM_LABELS.A}
-            </Button>
-            <Button 
-              variant="secondary" 
-              size="sm" 
-              onClick={async () => {
-                if (graphicalTeam !== 'B' && hasUnsavedChanges && saveActionRef.current) {
-                  await saveActionRef.current();
-                }
-                setGraphicalTeam('B');
-              }}
-              className={graphicalTeam === 'B' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
-            >
-              {TEAM_LABELS.B}
-            </Button>
-          </div>
+        <div className="flex gap-2 animate-fade-in" ref={graphicalContainerRef}>
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={async () => {
+              if (graphicalTeam !== 'A' && hasUnsavedChanges && pitchSaveActionRef.current) {
+                await pitchSaveActionRef.current();
+              }
+              setGraphicalTeam('A');
+            }}
+            className={graphicalTeam === 'A' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
+          >
+            {TEAM_LABELS.A}
+          </Button>
+          <Button 
+            variant="secondary" 
+            size="sm" 
+            onClick={async () => {
+              if (graphicalTeam !== 'B' && hasUnsavedChanges && pitchSaveActionRef.current) {
+                await pitchSaveActionRef.current();
+              }
+              setGraphicalTeam('B');
+            }}
+            className={graphicalTeam === 'B' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}
+          >
+            {TEAM_LABELS.B}
+          </Button>
+        </div>
+
         {/* Edit Match Button */}
-        <div className="flex justify-end animate-fade-in">
-          {isAdmin && (
+        {isAdmin && (
+          <div className="absolute right-0 flex items-center animate-fade-in">
             <Button 
               variant="secondary" 
               size="sm" 
               onClick={async () => {
                 if (isEditing) {
-                  // Finalizando edición, guardar pendiente si hay
-                  if (hasUnsavedChanges && saveActionRef.current) {
-                    await saveActionRef.current();
+                  const msg = isPlayed 
+                    ? '¿Actualizar el resultado con los goles actuales? Esto recalculará las estadísticas del partido.'
+                    : '¿Seguro que deseas finalizar el partido? Esto actualizará las estadísticas y no se puede deshacer (a menos que se cambie el estado en DB).';
+                  
+                  if (!confirm(msg)) {
+                    return;
                   }
-                  setIsEditing(false);
+
+                  // Finalizando edición, guardar cambios pendientes en lote
+                  await saveAllPending();
+                  await finishMatch(match.id);
+                  handleSuccess();
                 } else {
                   setIsEditing(true);
-                  if (viewMode === 'graphical') {
-                    setTimeout(() => {
-                      graphicalContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 100);
-                  }
                 }
               }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-1.5"
             >
               {isEditing ? (
                 <>
@@ -207,103 +217,30 @@ export function MatchAdminWrapper({
                 </>
               )}
             </Button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
-      {/* View Toggle (Cancha / Lista) */}
-      {isAdmin && isEditing && (
-        <div className="flex justify-center mb-6 animate-slide-up delay-1">
-          <div className="bg-muted p-1 rounded-lg inline-flex">
-            <button
-              onClick={async () => {
-                if (hasUnsavedChanges && saveActionRef.current) {
-                  await saveActionRef.current();
-                }
-                setViewMode('graphical');
-                setTimeout(() => {
-                  graphicalContainerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 100);
-              }}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'graphical' 
-                  ? 'bg-background text-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Cancha
-            </button>
-            <button
-              onClick={async () => {
-                if (hasUnsavedChanges && saveActionRef.current) {
-                  await saveActionRef.current();
-                }
-                setViewMode('list');
-              }}
-              className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                viewMode === 'list' 
-                  ? 'bg-background text-foreground shadow-sm' 
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              Lista
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Teams Content */}
-      {viewMode === 'list' ? (
-        <div className="animate-slide-up delay-1 mb-6 mt-4 max-w-2xl mx-auto">
-          {graphicalTeam === 'A' ? (
-            <MatchTeamAdmin 
-              matchId={match.id}
-              team="A"
-              teamName={TEAM_LABELS.A}
-              matchPlayers={teamA}
-              allMatchPlayers={allMatchPlayers}
-              allPlayers={allPlayers}
-              isAdmin={isAdmin}
-              isEditing={isAdmin && isEditing}
-              isPlayed={isPlayed}
-            />
-          ) : (
-            <MatchTeamAdmin 
-              matchId={match.id}
-              team="B"
-              teamName={TEAM_LABELS.B}
-              matchPlayers={teamB}
-              allMatchPlayers={allMatchPlayers}
-              allPlayers={allPlayers}
-              isAdmin={isAdmin}
-              isEditing={isAdmin && isEditing}
-              isPlayed={isPlayed}
-            />
+      {/* Graphical Pitch Content */}
+      <div className="mb-6 animate-fade-in">
+        <GraphicalLineupAdmin
+          matchId={match.id}
+          team={graphicalTeam}
+          matchPlayers={graphicalTeam === 'A' ? teamA : teamB}
+          availablePlayers={allPlayers.filter(
+            (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
           )}
-        </div>
-      ) : (
-        <div className="mb-6 animate-fade-in">
-          <GraphicalLineupAdmin
-            matchId={match.id}
-            team={graphicalTeam}
-            matchPlayers={graphicalTeam === 'A' ? teamA : teamB}
-            availablePlayers={allPlayers.filter(
-              (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
-            )}
-            isEditing={isAdmin && isEditing}
-            onUnsavedChangesChange={(hasUnsaved, saveAction) => {
-              setHasUnsavedChanges(hasUnsaved);
-              if (saveAction) {
-                saveActionRef.current = saveAction;
-              }
-            }}
-          />
-        </div>
-      )}
+          isEditing={isAdmin && isEditing}
+          onUnsavedChangesChange={(hasUnsaved, saveAction) => {
+            setHasUnsavedChanges(hasUnsaved);
+            pitchSaveActionRef.current = saveAction || null;
+          }}
+        />
+      </div>
 
       {/* Admin Actions */}
       {isAdmin && isEditing && (
-        <div className="flex justify-end animate-slide-up delay-2">
+        <div className="flex justify-end animate-slide-up delay-2 mb-4">
           <FinishMatchButton 
             matchId={match.id} 
             isPlayed={isPlayed} 
@@ -311,6 +248,20 @@ export function MatchAdminWrapper({
           />
         </div>
       )}
+
+      {/* Match Rosters & Goals (Always at the bottom, editable when in edit mode) */}
+      <MatchRosters
+        matchId={match.id}
+        teamA={teamA}
+        teamB={teamB}
+        allMatchPlayers={allMatchPlayers}
+        allPlayers={allPlayers}
+        isPlayed={isPlayed}
+        isEditing={isAdmin && isEditing}
+        onUnsavedChangesChange={(hasUnsaved, saveAction) => {
+          rostersSaveActionRef.current = saveAction || null;
+        }}
+      />
 
       {/* Global Success Toast */}
       {showToast && mounted && createPortal(
