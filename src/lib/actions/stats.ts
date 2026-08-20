@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { calculatePlayerStats } from '@/lib/utils/helpers';
-import type { PlayerStats, ScorerStat, UserProfile, Match, MatchPlayer, PaternityStat } from '@/lib/types/database';
+import type { PlayerStats, ScorerStat, UserProfile, Match, MatchPlayer, PaternityStat, GoalkeeperStat } from '@/lib/types/database';
 
 export async function getLeaderboard(): Promise<PlayerStats[]> {
   const supabase = await createClient();
@@ -250,4 +250,79 @@ export async function getPaternities(): Promise<PaternityStat[]> {
   });
 
   return result;
+}
+
+export async function getGoalkeeperStats(): Promise<GoalkeeperStat[]> {
+  const supabase = await createClient();
+
+  // Fetch all players
+  const { data: players } = await supabase
+    .from('user_profiles')
+    .select('*');
+
+  // Fetch all played matches
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('id, status, score_team_a, score_team_b')
+    .eq('status', 'played');
+
+  // Fetch all match_players
+  const { data: matchPlayers } = await supabase
+    .from('match_players')
+    .select('player_id, match_id, team, attended, pitch_position');
+
+  if (!players || !matches || !matchPlayers) return [];
+
+  const playedMatchesMap = new Map<string, { id: string; score_team_a: number; score_team_b: number }>();
+  matches.forEach((m) => {
+    playedMatchesMap.set(m.id, m);
+  });
+
+  const goalkeepersMap = new Map<string, GoalkeeperStat>();
+
+  (players as UserProfile[]).forEach((player) => {
+    goalkeepersMap.set(player.id, {
+      player,
+      matches_as_gk: 0,
+      goals_conceded: 0,
+      average_goals_conceded: 0,
+    });
+  });
+
+  matchPlayers.forEach((mp) => {
+    // Only count if attended, positioned as goalkeeper ('gk'), and match is played
+    if (mp.attended && mp.pitch_position === 'gk' && playedMatchesMap.has(mp.match_id)) {
+      const match = playedMatchesMap.get(mp.match_id)!;
+      const stats = goalkeepersMap.get(mp.player_id);
+      
+      if (stats) {
+        stats.matches_as_gk += 1;
+        // The goals received by the goalkeeper are the goals scored by the opponent team
+        const conceded = mp.team === 'A' ? (match.score_team_b || 0) : (match.score_team_a || 0);
+        stats.goals_conceded += conceded;
+      }
+    }
+  });
+
+  const activeGoalkeepers = Array.from(goalkeepersMap.values()).filter((gk) => gk.matches_as_gk > 0);
+
+  activeGoalkeepers.forEach((gk) => {
+    gk.average_goals_conceded = gk.matches_as_gk > 0
+      ? Number((gk.goals_conceded / gk.matches_as_gk).toFixed(2))
+      : 0;
+  });
+
+  // Sort:
+  // 1. Lowest average goals conceded per match (ascending)
+  // 2. Fewest total goals conceded (ascending)
+  // 3. Most matches as goalkeeper (descending)
+  return activeGoalkeepers.sort((a, b) => {
+    if (a.average_goals_conceded !== b.average_goals_conceded) {
+      return a.average_goals_conceded - b.average_goals_conceded;
+    }
+    if (a.goals_conceded !== b.goals_conceded) {
+      return a.goals_conceded - b.goals_conceded;
+    }
+    return b.matches_as_gk - a.matches_as_gk;
+  });
 }

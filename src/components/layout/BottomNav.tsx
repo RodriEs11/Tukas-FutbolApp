@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Trophy, MapPin, Target, Swords, type LucideIcon } from 'lucide-react';
+import { Home, Users, Trophy, MapPin, Target, Swords, Shield, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -16,6 +16,7 @@ const getNavItems = (isAdmin: boolean): NavItem[] => {
     { href: '/dashboard', label: 'Inicio', icon: Home },
     { href: '/players', label: 'Jugadores', icon: Users },
     { href: '/scorers', label: 'Goleadores', icon: Target },
+    { href: '/valla-menos-vencida', label: 'Arqueros', icon: Shield },
     { href: '/paternidades', label: 'Paternidades', icon: Swords },
     { href: '/matches', label: 'Partidos', icon: Trophy },
   ];
@@ -37,7 +38,7 @@ export function BottomNav({ isAdmin }: { isAdmin?: boolean }) {
       pb-[env(safe-area-inset-bottom)]
       md:hidden
     ">
-      <div className="flex items-center justify-around h-16 px-2">
+      <div className="grid grid-cols-6 items-center h-16 px-1 max-w-lg mx-auto">
         {navItems.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + '/');
@@ -49,9 +50,9 @@ export function BottomNav({ isAdmin }: { isAdmin?: boolean }) {
               href={item.href}
               className={`
                 flex flex-col items-center justify-center
-                w-full h-full gap-0.5
+                w-full h-full gap-0.5 py-1
                 transition-all duration-200 ease-out
-                rounded-xl mx-1
+                rounded-xl
                 active:scale-95
                 ${isActive
                   ? 'text-accent'

@@ -31,10 +31,13 @@ describe('Sidebar', () => {
     expect(screen.getByText('Tukas')).toBeDefined();
   });
 
-  it('Muestra items de navegación: Inicio, Jugadores, Partidos, Perfil', () => {
+  it('Muestra items de navegación: Inicio, Jugadores, Goleadores, Valla Menos Vencida, Paternidades, Partidos, Perfil', () => {
     render(<Sidebar />);
     expect(screen.getByText('Inicio')).toBeDefined();
     expect(screen.getByText('Jugadores')).toBeDefined();
+    expect(screen.getByText('Goleadores')).toBeDefined();
+    expect(screen.getByText('Valla Menos Vencida')).toBeDefined();
+    expect(screen.getByText('Paternidades')).toBeDefined();
     expect(screen.getByText('Partidos')).toBeDefined();
     expect(screen.getByText('Perfil')).toBeDefined();
   });

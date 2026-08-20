@@ -17,6 +17,7 @@ const pageTitles: Record<string, string> = {
   '/matches': 'Partidos',
   // '/fields': 'Canchas',
   '/scorers': 'Goleadores',
+  '/valla-menos-vencida': 'Valla Menos Vencida',
   '/paternidades': 'Paternidades',
   '/profile': 'Mi Perfil',
 };

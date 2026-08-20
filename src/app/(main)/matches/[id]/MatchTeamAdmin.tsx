@@ -7,8 +7,8 @@ import { Card } from '@/components/ui/Card';
 import { Avatar } from '@/components/ui/Avatar';
 import { Input } from '@/components/ui/Input';
 import { getPlayerDisplayName } from '@/lib/utils/helpers';
-import { removePlayerFromMatch, updateMatchPlayer } from '@/lib/actions/matches';
-import { Plus, Minus, UserMinus } from 'lucide-react';
+import { removePlayerFromMatch, updateMatchPlayer, setTeamGoalkeeper } from '@/lib/actions/matches';
+import { Plus, Minus, UserMinus, Shield } from 'lucide-react';
 import { AddPlayersToMatchModal } from '@/components/matches/AddPlayersToMatchModal';
 import type { UserProfile, MatchPlayer } from '@/lib/types/database';
 
@@ -28,6 +28,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
   // Loading states
   const [loadingGoalId, setLoadingGoalId] = useState<string | null>(null);
   const [loadingDeleteId, setLoadingDeleteId] = useState<string | null>(null);
+  const [loadingGkId, setLoadingGkId] = useState<string | null>(null);
   const [isAddingPlayers, setIsAddingPlayers] = useState(false);
 
   // Modal & Selection state
@@ -44,6 +45,12 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
   const availablePlayers = allPlayers.filter(
     (p) => !allMatchPlayers.some((mp) => mp.player_id === p.id)
   );
+
+  async function handleSetGoalkeeper(mp: MatchPlayer) {
+    setLoadingGkId(mp.player_id);
+    await setTeamGoalkeeper(matchId, team, mp.player_id);
+    setLoadingGkId(null);
+  }
 
   async function handleRemovePlayer(playerId: string) {
     if (!confirm('¿Seguro que deseas eliminar a este jugador del partido?')) return;
@@ -118,10 +125,33 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
                       <Avatar player={mp.player} size="sm" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {mp.player ? getPlayerDisplayName(mp.player) : ''}
-                      </p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {mp.player ? getPlayerDisplayName(mp.player) : ''}
+                        </p>
+                        {mp.pitch_position === 'gk' && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0" title="Arquero del equipo">
+                            🧤 POR
+                          </span>
+                        )}
+                      </div>
                     </div>
+
+                    {/* Goalkeeper Toggle Button (when editing) */}
+                    {isEditing && (
+                      <button
+                        onClick={() => handleSetGoalkeeper(mp)}
+                        disabled={loadingGkId === mp.player_id}
+                        title={mp.pitch_position === 'gk' ? 'Es el arquero del equipo' : 'Asignar como arquero'}
+                        className={`flex items-center justify-center h-7 px-2 rounded-lg text-xs font-semibold transition-all ${
+                          mp.pitch_position === 'gk'
+                            ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/40 shadow-sm'
+                            : 'bg-muted/60 text-muted-foreground hover:text-foreground hover:bg-muted border border-border'
+                        } ${loadingGkId === mp.player_id ? 'opacity-50 animate-pulse' : ''}`}
+                      >
+                        🧤 {mp.pitch_position === 'gk' ? 'Arquero' : 'Hacer arquero'}
+                      </button>
+                    )}
                     
                     {/* Goal Controls (Next to name) */}
                     {(mp.goals > 0 || isEditing) && (
