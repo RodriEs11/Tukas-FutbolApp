@@ -18,13 +18,14 @@ vi.mock('next/link', () => ({
 }));
 
 describe('BottomNav', () => {
-  it('Renderiza todos los items de navegación base (5 items)', () => {
+  it('Renderiza todos los items de navegación base (6 items)', () => {
     render(<BottomNav />);
     const links = screen.getAllByTestId('nav-link');
-    expect(links).toHaveLength(5);
+    expect(links).toHaveLength(6);
     expect(screen.getByText('Inicio')).toBeDefined();
     expect(screen.getByText('Jugadores')).toBeDefined();
     expect(screen.getByText('Goleadores')).toBeDefined();
+    expect(screen.getByText('Arqueros')).toBeDefined();
     expect(screen.getByText('Paternidades')).toBeDefined();
     expect(screen.getByText('Partidos')).toBeDefined();
   });
@@ -59,6 +60,7 @@ describe('BottomNav', () => {
     expect(links.find(l => l.getAttribute('href') === '/players')).toBeDefined();
     expect(links.find(l => l.getAttribute('href') === '/matches')).toBeDefined();
     expect(links.find(l => l.getAttribute('href') === '/scorers')).toBeDefined();
+    expect(links.find(l => l.getAttribute('href') === '/valla-menos-vencida')).toBeDefined();
     expect(links.find(l => l.getAttribute('href') === '/paternidades')).toBeDefined();
   });
 
@@ -71,14 +73,14 @@ describe('BottomNav', () => {
 
   it('Funciona con isAdmin=true y isAdmin=false', () => {
     const { rerender } = render(<BottomNav isAdmin={true} />);
-    expect(screen.getAllByTestId('nav-link')).toHaveLength(5);
+    expect(screen.getAllByTestId('nav-link')).toHaveLength(6);
     
     rerender(<BottomNav isAdmin={false} />);
-    expect(screen.getAllByTestId('nav-link')).toHaveLength(5);
+    expect(screen.getAllByTestId('nav-link')).toHaveLength(6);
   });
 
   it('Renderiza con isAdmin undefined', () => {
     render(<BottomNav />);
-    expect(screen.getAllByTestId('nav-link')).toHaveLength(5);
+    expect(screen.getAllByTestId('nav-link')).toHaveLength(6);
   });
 });

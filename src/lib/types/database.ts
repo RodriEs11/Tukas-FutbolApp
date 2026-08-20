@@ -83,6 +83,16 @@ export interface PaternityStat {
     net_wins: number;
   }[];
 }
+
+export interface GoalkeeperStat {
+  player: UserProfile;
+  matches_as_gk: number;
+  goals_conceded: number;
+  clean_sheets: number;
+  average_goals_conceded: number;
+  is_eligible: boolean;
+  min_matches_required: number;
+}
 // Supabase Database type helper
 export interface Database {
   public: {

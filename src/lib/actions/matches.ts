@@ -154,6 +154,8 @@ export async function updateMatch(formData: FormData) {
   }
 
   revalidatePath('/matches');
+  revalidatePath(`/matches/${id}`);
+  revalidatePath('/valla-menos-vencida');
   return { success: true };
 }
 
@@ -338,6 +340,57 @@ export async function finishMatch(matchId: string) {
   revalidatePath(`/matches/${matchId}`);
   revalidatePath('/dashboard');
   revalidatePath('/players');
+  revalidatePath('/scorers');
+  revalidatePath('/valla-menos-vencida');
+  return { success: true };
+}
+
+export async function setTeamGoalkeeper(matchId: string, team: 'A' | 'B', playerId: string) {
+  const supabase = await createClient();
+
+  // Find existing goalkeeper in this team
+  const { data: teamPlayers, error: fetchError } = await supabase
+    .from('match_players')
+    .select('id, player_id, pitch_position')
+    .eq('match_id', matchId)
+    .eq('team', team);
+
+  if (fetchError || !teamPlayers) {
+    return { error: fetchError?.message || 'Error al obtener jugadores del equipo' };
+  }
+
+  const updates: { id: string; pitch_position: string | null }[] = [];
+
+  teamPlayers.forEach((mp) => {
+    if (mp.player_id === playerId) {
+      // Set to 'gk'
+      if (mp.pitch_position !== 'gk') {
+        updates.push({ id: mp.id, pitch_position: 'gk' });
+      }
+    } else if (mp.pitch_position === 'gk') {
+      // Remove 'gk' from previous goalkeeper in this team
+      updates.push({ id: mp.id, pitch_position: null });
+    }
+  });
+
+  if (updates.length > 0) {
+    const promises = updates.map((u) =>
+      supabase
+        .from('match_players')
+        .update({ pitch_position: u.pitch_position } as Record<string, unknown>)
+        .eq('id', u.id)
+    );
+    const results = await Promise.all(promises);
+    const hasError = results.some((res) => res.error);
+    if (hasError) {
+      const err = results.find((res) => res.error)?.error;
+      return { error: err?.message || 'Error al asignar arquero' };
+    }
+  }
+
+  revalidatePath('/matches');
+  revalidatePath(`/matches/${matchId}`);
+  revalidatePath('/valla-menos-vencida');
   return { success: true };
 }
 
@@ -359,8 +412,6 @@ export async function updateMatchPlayerPosition(id: string, pitchPosition: strin
 export async function updateMatchPlayersBulk(updates: { id: string; pitch_position: string | null }[], matchId?: string) {
   const supabase = await createClient();
 
-  // Supabase update many is tricky without a custom RPC, but we can loop since it's only up to 8 players.
-  // We can do Promise.all
   const promises = updates.map(update => 
     supabase
       .from('match_players')
@@ -383,6 +434,34 @@ export async function updateMatchPlayersBulk(updates: { id: string; pitch_positi
   return { success: true };
 }
 
+export async function updateMatchPlayersGoalsBulk(updates: { id: string; goals: number }[], matchId?: string) {
+  if (updates.length === 0) return { success: true };
+  const supabase = await createClient();
+
+  const promises = updates.map(update =>
+    supabase
+      .from('match_players')
+      .update({ goals: update.goals, attended: true } as Record<string, unknown>)
+      .eq('id', update.id)
+  );
+
+  const results = await Promise.all(promises);
+
+  const hasError = results.some(res => res.error);
+  if (hasError) {
+    const error = results.find(res => res.error)?.error;
+    return { error: error?.message || 'Error updating goals' };
+  }
+
+  revalidatePath('/matches');
+  if (matchId) {
+    revalidatePath(`/matches/${matchId}`);
+  }
+  revalidatePath('/scorers');
+  revalidatePath('/dashboard');
+  return { success: true };
+}
+
 export async function cancelMatch(matchId: string) {
   const supabase = await createClient();
 
@@ -400,5 +479,6 @@ export async function cancelMatch(matchId: string) {
   revalidatePath('/matches');
   revalidatePath(`/matches/${matchId}`);
   revalidatePath('/dashboard');
+  revalidatePath('/valla-menos-vencida');
   return { success: true };
 }

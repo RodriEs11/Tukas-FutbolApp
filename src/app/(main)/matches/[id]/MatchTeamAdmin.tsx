@@ -68,7 +68,7 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
   const teamColor = team === 'A' ? 'emerald' : 'sky';
 
   return (
-    <div>
+    <div className="w-full">
       <div className="flex items-center gap-2 mb-3">
         <div className={`w-3 h-3 rounded-full bg-${teamColor}-500`} />
         <h3 className="text-sm font-semibold text-foreground">
@@ -110,44 +110,53 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
               return (
                 <div
                   key={mp.id}
-                  className="flex items-center justify-between gap-3 px-4 py-3"
+                  className="flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-3 min-w-0"
                 >
                   {/* Player Info & Goal Controls */}
-                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                     {mp.player && (
                       <Avatar player={mp.player} size="sm" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">
-                        {mp.player ? getPlayerDisplayName(mp.player) : ''}
-                      </p>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {mp.player ? getPlayerDisplayName(mp.player) : ''}
+                        </p>
+                        {mp.pitch_position === 'gk' && (
+                          <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded text-[10px] font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 shrink-0" title="Arquero del equipo">
+                            🧤 ARQ
+                          </span>
+                        )}
+                      </div>
                     </div>
                     
-                    {/* Goal Controls (Next to name) */}
+                    {/* Goal Controls */}
                     {(mp.goals > 0 || isEditing) && (
-                      <div className={`flex items-center gap-2 mx-1 text-${teamColor}-400 flex-shrink-0`}>
+                      <div className={`flex items-center gap-1.5 sm:gap-2 mx-1 text-${teamColor}-400 flex-shrink-0`}>
                         {isEditing && (
                           <button 
                             onClick={() => handleUpdateGoals(mp, -1)} 
                             disabled={isGoalLoading || mp.goals === 0} 
-                            className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground hover:bg-muted/80 disabled:opacity-50 active:scale-95 transition-all"
+                            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-muted text-foreground hover:bg-muted/80 disabled:opacity-50 active:scale-95 transition-all"
+                            aria-label="Restar gol"
                           >
-                            <Minus size={16} />
+                            <Minus size={14} />
                           </button>
                         )}
                         
-                        <div className="flex flex-col items-center justify-center min-w-[24px]">
-                          <span className={`text-[13px] leading-none mb-1 ${isGoalLoading ? 'opacity-50 animate-pulse' : ''}`}>⚽</span>
-                          <span className="text-[13px] font-bold text-foreground leading-none">{mp.goals}</span>
+                        <div className="flex flex-col items-center justify-center min-w-[20px] sm:min-w-[24px]">
+                          <span className={`text-[12px] sm:text-[13px] leading-none mb-0.5 sm:mb-1 ${isGoalLoading ? 'opacity-50 animate-pulse' : ''}`}>⚽</span>
+                          <span className="text-xs sm:text-[13px] font-bold text-foreground leading-none">{mp.goals}</span>
                         </div>
                         
                         {isEditing && (
                           <button 
                             onClick={() => handleUpdateGoals(mp, 1)} 
                             disabled={isGoalLoading} 
-                            className="flex items-center justify-center w-8 h-8 rounded-full bg-muted text-foreground hover:bg-muted/80 disabled:opacity-50 active:scale-95 transition-all"
+                            className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-muted text-foreground hover:bg-muted/80 disabled:opacity-50 active:scale-95 transition-all"
+                            aria-label="Sumar gol"
                           >
-                            <Plus size={16} />
+                            <Plus size={14} />
                           </button>
                         )}
                       </div>
@@ -156,13 +165,14 @@ export function MatchTeamAdmin({ matchId, team, teamName, matchPlayers, allMatch
                   
                   {/* Delete Control (Far right) */}
                   {isEditing && (
-                    <div className="pl-3 border-l border-border flex-shrink-0">
+                    <div className="pl-2 sm:pl-3 border-l border-border flex-shrink-0">
                       <button 
                         onClick={() => handleRemovePlayer(mp.player_id)} 
                         disabled={isDeleteLoading} 
-                        className="flex items-center justify-center w-8 h-8 text-destructive hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50"
+                        className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 text-destructive hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50"
+                        title="Eliminar jugador"
                       >
-                        <UserMinus size={16} />
+                        <UserMinus size={15} />
                       </button>
                     </div>
                   )}

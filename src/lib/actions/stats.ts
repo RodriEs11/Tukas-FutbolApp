@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { calculatePlayerStats } from '@/lib/utils/helpers';
-import type { PlayerStats, ScorerStat, UserProfile, Match, MatchPlayer, PaternityStat } from '@/lib/types/database';
+import type { PlayerStats, ScorerStat, UserProfile, Match, MatchPlayer, PaternityStat, GoalkeeperStat } from '@/lib/types/database';
 
 export async function getLeaderboard(): Promise<PlayerStats[]> {
   const supabase = await createClient();
@@ -250,4 +250,96 @@ export async function getPaternities(): Promise<PaternityStat[]> {
   });
 
   return result;
+}
+
+export async function getGoalkeeperStats(): Promise<GoalkeeperStat[]> {
+  const supabase = await createClient();
+
+  // Fetch all players
+  const { data: players } = await supabase
+    .from('user_profiles')
+    .select('*');
+
+  // Fetch all played matches
+  const { data: matches } = await supabase
+    .from('matches')
+    .select('id, status, score_team_a, score_team_b')
+    .eq('status', 'played');
+
+  // Fetch all match_players
+  const { data: matchPlayers } = await supabase
+    .from('match_players')
+    .select('player_id, match_id, team, attended, pitch_position');
+
+  if (!players || !matches || !matchPlayers) return [];
+
+  const totalPlayedMatches = matches.length;
+  // Threshold: 30% of total played matches (minimum 3)
+  const minMatchesRequired = Math.max(3, Math.ceil(totalPlayedMatches * 0.3));
+
+  const playedMatchesMap = new Map<string, { id: string; score_team_a: number; score_team_b: number }>();
+  matches.forEach((m) => {
+    playedMatchesMap.set(m.id, m);
+  });
+
+  const goalkeepersMap = new Map<string, GoalkeeperStat>();
+
+  (players as UserProfile[]).forEach((player) => {
+    goalkeepersMap.set(player.id, {
+      player,
+      matches_as_gk: 0,
+      goals_conceded: 0,
+      clean_sheets: 0,
+      average_goals_conceded: 0,
+      is_eligible: false,
+      min_matches_required: minMatchesRequired,
+    });
+  });
+
+  matchPlayers.forEach((mp) => {
+    // Only count if attended, positioned as goalkeeper ('gk'), and match is played
+    if (mp.attended && mp.pitch_position === 'gk' && playedMatchesMap.has(mp.match_id)) {
+      const match = playedMatchesMap.get(mp.match_id)!;
+      const stats = goalkeepersMap.get(mp.player_id);
+      
+      if (stats) {
+        stats.matches_as_gk += 1;
+        // The goals received by the goalkeeper are the goals scored by the opponent team
+        const conceded = mp.team === 'A' ? (match.score_team_b || 0) : (match.score_team_a || 0);
+        stats.goals_conceded += conceded;
+        if (conceded === 0) {
+          stats.clean_sheets += 1;
+        }
+      }
+    }
+  });
+
+  const activeGoalkeepers = Array.from(goalkeepersMap.values()).filter((gk) => gk.matches_as_gk > 0);
+
+  activeGoalkeepers.forEach((gk) => {
+    gk.average_goals_conceded = gk.matches_as_gk > 0
+      ? Number((gk.goals_conceded / gk.matches_as_gk).toFixed(2))
+      : 0;
+    gk.is_eligible = gk.matches_as_gk >= minMatchesRequired;
+    gk.min_matches_required = minMatchesRequired;
+  });
+
+  // Sort criteria:
+  // 1° Lowest average goals conceded per match (ascending)
+  // 2° Most clean sheets (descending)
+  // 3° Most matches as goalkeeper (descending)
+  const compareGk = (a: GoalkeeperStat, b: GoalkeeperStat) => {
+    if (a.average_goals_conceded !== b.average_goals_conceded) {
+      return a.average_goals_conceded - b.average_goals_conceded;
+    }
+    if (b.clean_sheets !== a.clean_sheets) {
+      return b.clean_sheets - a.clean_sheets;
+    }
+    return b.matches_as_gk - a.matches_as_gk;
+  };
+
+  const eligible = activeGoalkeepers.filter((gk) => gk.is_eligible).sort(compareGk);
+  const ineligible = activeGoalkeepers.filter((gk) => !gk.is_eligible).sort(compareGk);
+
+  return [...eligible, ...ineligible];
 }

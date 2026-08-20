@@ -11,6 +11,8 @@ import {
   updateMatchPlayer,
   removePlayerFromMatch,
   finishMatch,
+  setTeamGoalkeeper,
+  updateMatchPlayersGoalsBulk,
 } from './matches';
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
@@ -453,4 +455,61 @@ describe('matches actions', () => {
       expect(result).toEqual({ error: 'update error' });
     });
   });
+
+  describe('setTeamGoalkeeper', () => {
+    it('debería asignar el arquero a un jugador y removerlo del anterior', async () => {
+      const mockTeamPlayers = [
+        { id: 'mp1', player_id: 'p1', pitch_position: 'gk' },
+        { id: 'mp2', player_id: 'p2', pitch_position: 'def-c' },
+      ];
+
+      const builderFetch = mockQueryBuilder({ data: mockTeamPlayers, error: null });
+      const builderUpdate = mockQueryBuilder({ data: null, error: null });
+
+      let fromCall = 0;
+      (createClient as any).mockResolvedValue({
+        from: vi.fn().mockImplementation(() => {
+          fromCall++;
+          return fromCall === 1 ? builderFetch : builderUpdate;
+        }),
+      });
+
+      const result = await setTeamGoalkeeper('match1', 'A', 'p2');
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/match1');
+      expect(revalidatePath).toHaveBeenCalledWith('/valla-menos-vencida');
+    });
+
+    it('debería retornar error si falla al obtener jugadores del equipo', async () => {
+      const builderFetch = mockQueryBuilder({ data: null, error: new Error('fetch error') });
+      (createClient as any).mockResolvedValue({
+        from: vi.fn().mockReturnValue(builderFetch),
+      });
+
+      const result = await setTeamGoalkeeper('match1', 'A', 'p1');
+      expect(result).toEqual({ error: 'fetch error' });
+    });
+  });
+
+  describe('updateMatchPlayersGoalsBulk', () => {
+    it('debería retornar success si el array de updates está vacío', async () => {
+      const result = await updateMatchPlayersGoalsBulk([]);
+      expect(result).toEqual({ success: true });
+    });
+
+    it('debería actualizar goles en lote y revalidar rutas', async () => {
+      const builder = mockQueryBuilder({ data: null, error: null });
+      (createClient as any).mockResolvedValue({
+        from: vi.fn().mockReturnValue(builder),
+      });
+
+      const result = await updateMatchPlayersGoalsBulk([{ id: 'mp1', goals: 3 }, { id: 'mp2', goals: 1 }], 'match1');
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/match1');
+      expect(revalidatePath).toHaveBeenCalledWith('/scorers');
+    });
+  });
 });
+
