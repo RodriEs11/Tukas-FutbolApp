@@ -8,6 +8,7 @@ import {
   getMaxMatchesPlayed,
   getScorersStats,
   getPaternities,
+  getGoalkeeperStats,
 } from './stats';
 import { createClient } from '@/lib/supabase/server';
 import { calculatePlayerStats } from '@/lib/utils/helpers';
@@ -389,4 +390,107 @@ describe('stats actions', () => {
       expect(result[1].father.id).toBe('f2'); // 3 net wins
     });
   });
+
+  describe('getGoalkeeperStats', () => {
+    it('debería retornar array vacío si no hay datos', async () => {
+      const builder = mockQueryBuilder({ data: null, error: null });
+      (createClient as any).mockResolvedValue({
+        from: () => builder,
+      });
+
+      const result = await getGoalkeeperStats();
+      expect(result).toEqual([]);
+    });
+
+    it('debería calcular correctamente partidos como arquero, goles recibidos y promedio', async () => {
+      const mockPlayers = [
+        { id: 'gk1', first_name: 'Juan', nickname: 'Juani' },
+        { id: 'gk2', first_name: 'Pedro', nickname: 'Pedrito' },
+        { id: 'field1', first_name: 'Lucas' },
+      ];
+
+      const mockMatches = [
+        { id: 'm1', status: 'played', score_team_a: 2, score_team_b: 1 },
+        { id: 'm2', status: 'played', score_team_a: 3, score_team_b: 3 },
+      ];
+
+      const mockMatchPlayers = [
+        // Match 1: gk1 in Team A (received 1 goal from Team B), gk2 in Team B (received 2 goals from Team A)
+        { player_id: 'gk1', match_id: 'm1', team: 'A', attended: true, pitch_position: 'gk' },
+        { player_id: 'gk2', match_id: 'm1', team: 'B', attended: true, pitch_position: 'gk' },
+        { player_id: 'field1', match_id: 'm1', team: 'A', attended: true, pitch_position: 'fwd' },
+        // Match 2: gk1 in Team A (received 3 goals from Team B), gk2 did not play as gk
+        { player_id: 'gk1', match_id: 'm2', team: 'A', attended: true, pitch_position: 'gk' },
+        { player_id: 'gk2', match_id: 'm2', team: 'B', attended: true, pitch_position: 'def-c' },
+      ];
+
+      const builderPlayers = mockQueryBuilder({ data: mockPlayers, error: null });
+      const builderMatches = mockQueryBuilder({ data: mockMatches, error: null });
+      const builderMatchPlayers = mockQueryBuilder({ data: mockMatchPlayers, error: null });
+
+      (createClient as any).mockResolvedValue({
+        from: (table: string) => {
+          if (table === 'user_profiles') return builderPlayers;
+          if (table === 'matches') return builderMatches;
+          if (table === 'match_players') return builderMatchPlayers;
+        },
+      });
+
+      const result = await getGoalkeeperStats();
+
+      // Only gk1 and gk2 should appear, field1 was never a goalkeeper
+      expect(result.length).toBe(2);
+
+      // gk1: 2 matches, received 1 + 3 = 4 goals -> avg 2.00
+      // gk2: 1 match, received 2 goals -> avg 2.00
+      // Tie breaker: gk2 has 2 total goals vs gk1 with 4 total goals -> gk2 first!
+      expect(result[0].player.id).toBe('gk2');
+      expect(result[0].matches_as_gk).toBe(1);
+      expect(result[0].goals_conceded).toBe(2);
+      expect(result[0].average_goals_conceded).toBe(2);
+
+      expect(result[1].player.id).toBe('gk1');
+      expect(result[1].matches_as_gk).toBe(2);
+      expect(result[1].goals_conceded).toBe(4);
+      expect(result[1].average_goals_conceded).toBe(2);
+    });
+
+    it('debería ordenar por menor promedio de goles recibidos', async () => {
+      const mockPlayers = [
+        { id: 'gk1', first_name: 'Juan' },
+        { id: 'gk2', first_name: 'Pedro' },
+      ];
+
+      const mockMatches = [
+        { id: 'm1', status: 'played', score_team_a: 5, score_team_b: 1 },
+      ];
+
+      // gk1 in Team A (received 1 goal), gk2 in Team B (received 5 goals)
+      const mockMatchPlayers = [
+        { player_id: 'gk1', match_id: 'm1', team: 'A', attended: true, pitch_position: 'gk' },
+        { player_id: 'gk2', match_id: 'm1', team: 'B', attended: true, pitch_position: 'gk' },
+      ];
+
+      const builderPlayers = mockQueryBuilder({ data: mockPlayers, error: null });
+      const builderMatches = mockQueryBuilder({ data: mockMatches, error: null });
+      const builderMatchPlayers = mockQueryBuilder({ data: mockMatchPlayers, error: null });
+
+      (createClient as any).mockResolvedValue({
+        from: (table: string) => {
+          if (table === 'user_profiles') return builderPlayers;
+          if (table === 'matches') return builderMatches;
+          if (table === 'match_players') return builderMatchPlayers;
+        },
+      });
+
+      const result = await getGoalkeeperStats();
+
+      expect(result.length).toBe(2);
+      expect(result[0].player.id).toBe('gk1'); // avg 1.00
+      expect(result[0].average_goals_conceded).toBe(1);
+      expect(result[1].player.id).toBe('gk2'); // avg 5.00
+      expect(result[1].average_goals_conceded).toBe(5);
+    });
+  });
 });
+
