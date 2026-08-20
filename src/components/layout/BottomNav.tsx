@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Users, Trophy, MapPin, Target, Swords, Shield, type LucideIcon } from 'lucide-react';
+import { Home, Users, Trophy, MapPin, Target, Baby, Shield, type LucideIcon } from 'lucide-react';
 
 interface NavItem {
   href: string;
@@ -17,7 +17,7 @@ const getNavItems = (isAdmin: boolean): NavItem[] => {
     { href: '/players', label: 'Jugadores', icon: Users },
     { href: '/scorers', label: 'Goleadores', icon: Target },
     { href: '/valla-menos-vencida', label: 'Arqueros', icon: Shield },
-    { href: '/paternidades', label: 'Paternidades', icon: Swords },
+    { href: '/paternidades', label: 'Paternidades', icon: Baby },
     { href: '/matches', label: 'Partidos', icon: Trophy },
   ];
   if (isAdmin) {
