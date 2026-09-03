@@ -1,8 +1,16 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { GoalkeepersTable } from './GoalkeepersTable';
 import { mockRegularPlayer, mockPlayerNoNickname, mockPlayerNoAvatar } from '@/lib/test-utils/fixtures';
 import type { GoalkeeperStat } from '@/lib/types/database';
+
+vi.mock('@/lib/actions/stats', () => ({
+  getPlayerCardData: vi.fn().mockImplementation((id: string) => Promise.resolve({
+    player: mockGoalkeepers[0].player,
+    stats: null,
+    rating: 82,
+  })),
+}));
 
 const mockGoalkeepers: GoalkeeperStat[] = [
   {
@@ -71,5 +79,15 @@ describe('GoalkeepersTable', () => {
     expect(screen.getByText('0.60')).toBeDefined();
     expect(screen.getByText('1.00')).toBeDefined();
     expect(screen.getByText('0.00')).toBeDefined();
+  });
+
+  it('Abre el modal PlayerCardModal al hacer clic en una fila de arquero', async () => {
+    const { fireEvent } = await import('@testing-library/react');
+    render(<GoalkeepersTable goalkeepers={mockGoalkeepers} />);
+    const gkRowText = screen.getByText('Dibu');
+    fireEvent.click(gkRowText);
+
+    // Modal renders with player name
+    expect(await screen.findByText(`${mockGoalkeepers[0].player.first_name} ${mockGoalkeepers[0].player.last_name}`)).toBeDefined();
   });
 });

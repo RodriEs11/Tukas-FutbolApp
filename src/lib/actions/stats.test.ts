@@ -6,6 +6,7 @@ import {
   getUpcomingMatches,
   getLastMatch,
   getMaxMatchesPlayed,
+  getPlayerCardData,
   getScorersStats,
   getPaternities,
   getGoalkeeperStats,
@@ -17,9 +18,13 @@ vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
 }));
 
-vi.mock('@/lib/utils/helpers', () => ({
-  calculatePlayerStats: vi.fn(),
-}));
+vi.mock('@/lib/utils/helpers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/utils/helpers')>();
+  return {
+    ...actual,
+    calculatePlayerStats: vi.fn(),
+  };
+});
 
 function mockQueryBuilder(resolvedValue: { data: unknown; error: unknown }) {
   const builder: Record<string, any> = {};
@@ -238,6 +243,59 @@ describe('stats actions', () => {
 
       const result = await getMaxMatchesPlayed();
       expect(result).toBe(0);
+    });
+  });
+
+  describe('getPlayerCardData', () => {
+    it('debería retornar los datos de la carta con rating cuando el jugador tiene estadísticas', async () => {
+      const mockPlayer = { id: 'p1', first_name: 'Lionel', last_name: 'Messi' };
+      const builderUserProfiles = mockQueryBuilder({ data: [mockPlayer], error: null });
+      builderUserProfiles.single = vi.fn().mockResolvedValue({ data: mockPlayer, error: null });
+      const builderMatches = mockQueryBuilder({ data: [{ id: 'm1', status: 'played' }], error: null });
+      const builderMatchPlayers = mockQueryBuilder({ data: [{ player_id: 'p1', match_id: 'm1' }], error: null });
+
+      (createClient as any).mockResolvedValue({
+        from: (table: string) => {
+          if (table === 'user_profiles') return builderUserProfiles;
+          if (table === 'matches') return builderMatches;
+          if (table === 'match_players') return builderMatchPlayers;
+        },
+      });
+
+      (calculatePlayerStats as any).mockReturnValue({
+        player: mockPlayer,
+        matches_played: 10,
+        goals: 15,
+        wins: 8,
+        draws: 1,
+        losses: 1,
+        points: 25,
+      });
+
+      const result = await getPlayerCardData('p1');
+      expect(result.player).toEqual(mockPlayer);
+      expect(result.stats).toBeDefined();
+      expect(typeof result.rating).toBe('number');
+    });
+
+    it('debería retornar datos básicos sin stats si el jugador no existe o no tiene partidos', async () => {
+      const mockPlayer = { id: 'p2', first_name: 'Nuevo', last_name: 'Jugador' };
+      const builderPlayer = mockQueryBuilder({ data: mockPlayer, error: null });
+      const builderMatches = mockQueryBuilder({ data: null, error: null });
+      const builderMatchPlayers = mockQueryBuilder({ data: null, error: null });
+
+      (createClient as any).mockResolvedValue({
+        from: (table: string) => {
+          if (table === 'user_profiles') return builderPlayer;
+          if (table === 'matches') return builderMatches;
+          if (table === 'match_players') return builderMatchPlayers;
+        },
+      });
+
+      const result = await getPlayerCardData('p2');
+      expect(result.player).toEqual(mockPlayer);
+      expect(result.stats).toBeNull();
+      expect(result.rating).toBeNull();
     });
   });
 

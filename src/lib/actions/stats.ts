@@ -135,6 +135,41 @@ export async function getMaxMatchesPlayed(): Promise<number> {
   return Math.max(...leaderboard.map((s) => s.matches_played));
 }
 
+export async function getPlayerCardData(playerId: string): Promise<{
+  player: UserProfile | null;
+  stats: PlayerStats | null;
+  rating: number | null;
+}> {
+  const [playerStats, maxMatches] = await Promise.all([
+    getPlayerStats(playerId),
+    getMaxMatchesPlayed(),
+  ]);
+
+  if (!playerStats) {
+    const supabase = await createClient();
+    const { data: player } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', playerId)
+      .single();
+
+    return {
+      player: (player as UserProfile) || null,
+      stats: null,
+      rating: null,
+    };
+  }
+
+  const { calculatePlayerRating } = await import('@/lib/utils/rating');
+  const rating = calculatePlayerRating(playerStats, maxMatches);
+
+  return {
+    player: playerStats.player,
+    stats: playerStats,
+    rating,
+  };
+}
+
 export async function getScorersStats(): Promise<ScorerStat[]> {
   const supabase = await createClient();
 
