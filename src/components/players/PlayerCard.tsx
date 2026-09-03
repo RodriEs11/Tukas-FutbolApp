@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { getInitials, stringToColor } from '@/lib/utils/helpers';
+import { getInitials, stringToColor, isGoalkeeper } from '@/lib/utils/helpers';
 import { getCardTier } from '@/lib/utils/rating';
 import type { UserProfile, PlayerStats } from '@/lib/types/database';
 
@@ -13,6 +13,7 @@ interface PlayerCardProps {
 
 export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
   const tier = useMemo(() => getCardTier(rating), [rating]);
+  const isGk = isGoalkeeper(player.position);
 
   const winRate =
     stats && stats.matches_played > 0
@@ -23,6 +24,15 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
     stats && stats.matches_played > 0
       ? (stats.goals / stats.matches_played).toFixed(1)
       : '0.0';
+
+  const vallaMenosVencida =
+    stats && (stats.matches_as_gk ?? 0) > 0
+      ? (stats.clean_sheet_points_avg ?? 0).toFixed(1)
+      : (stats?.matches_played ?? 0) === 0
+      ? '0.0'
+      : (stats?.clean_sheet_points_avg ?? 0).toFixed(1);
+
+  const arcosEnCero = stats?.clean_sheets ?? 0;
 
   const initials = getInitials(player);
   const bgColor = stringToColor(player.id);
@@ -83,28 +93,49 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
           <div className="player-card-divider" />
         </div>
 
-        {/* Stats 2x2 Grid */}
-        <div className="player-card-stats z-10">
-          <div className="player-card-stat">
-            <span className="player-card-stat-value">{golesPerMatch}</span>
-            <span className="player-card-stat-label">GOL</span>
+        {/* Stats Grid */}
+        {isGk ? (
+          <div className="player-card-stats z-10">
+            <div className="player-card-stat" title="Valla menos vencida">
+              <span className="player-card-stat-value">{vallaMenosVencida}</span>
+              <span className="player-card-stat-label">VMV</span>
+            </div>
+            <div className="player-card-stat" title="Arcos en cero">
+              <span className="player-card-stat-value">{arcosEnCero}</span>
+              <span className="player-card-stat-label">0 GOL</span>
+            </div>
+            <div className="player-card-stat" title="Porcentaje de victorias">
+              <span className="player-card-stat-value">{winRate}%</span>
+              <span className="player-card-stat-label">VIC</span>
+            </div>
+            <div className="player-card-stat" title="Partidos jugados">
+              <span className="player-card-stat-value">{stats?.matches_played ?? 0}</span>
+              <span className="player-card-stat-label">PJ</span>
+            </div>
           </div>
-          <div className="player-card-stat">
-            <span className="player-card-stat-value">{stats?.points ?? 0}</span>
-            <span className="player-card-stat-label">PTS</span>
+        ) : (
+          <div className="player-card-stats z-10">
+            <div className="player-card-stat" title="Goles por partido">
+              <span className="player-card-stat-value">{golesPerMatch}</span>
+              <span className="player-card-stat-label">GOL</span>
+            </div>
+            <div className="player-card-stat" title="Puntos">
+              <span className="player-card-stat-value">{stats?.points ?? 0}</span>
+              <span className="player-card-stat-label">PTS</span>
+            </div>
+            <div className="player-card-stat" title="Porcentaje de victorias">
+              <span className="player-card-stat-value">{winRate}%</span>
+              <span className="player-card-stat-label">VIC</span>
+            </div>
+            <div className="player-card-stat" title="Partidos jugados">
+              <span className="player-card-stat-value">{stats?.matches_played ?? 0}</span>
+              <span className="player-card-stat-label">PJ</span>
+            </div>
           </div>
-          <div className="player-card-stat">
-            <span className="player-card-stat-value">{winRate}%</span>
-            <span className="player-card-stat-label">VIC</span>
-          </div>
-          <div className="player-card-stat">
-            <span className="player-card-stat-value">{stats?.matches_played ?? 0}</span>
-            <span className="player-card-stat-label">PJ</span>
-          </div>
-        </div>
+        )}
 
         {/* Brand */}
-        <div className="player-card-brand mt-4 z-10">⚽ TUKAS</div>
+        <div className="player-card-brand mt-4 z-10">TUKAS</div>
       </div>
     </div>
   );

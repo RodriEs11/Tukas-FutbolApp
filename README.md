@@ -128,6 +128,7 @@ npm run start
 - `/src/app`: Rutas principales de Next.js (App Router).
 - `/src/components`: Componentes reutilizables de UI y lógica.
 - `/src/lib`: Utilidades, helpers y configuración cliente/servidor de Supabase.
+- `/docs`: Documentación técnica del proyecto (ver [`docs/RATING_SYSTEM.md`](docs/RATING_SYSTEM.md) para el sistema de cálculo de puntajes y cartas).
 - `/supabase/migrations`: Archivos SQL de migraciones de la base de datos.
 - `/public`: Assets estáticos e imágenes.
 

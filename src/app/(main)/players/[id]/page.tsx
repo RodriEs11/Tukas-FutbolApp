@@ -6,7 +6,7 @@ import { getPlayer } from '@/lib/actions/players';
 import { getPlayerStats, getMaxMatchesPlayed } from '@/lib/actions/stats';
 import { getPlayerMatches } from '@/lib/actions/matches';
 import { getCurrentUser } from '@/lib/actions/auth';
-import { getPlayerDisplayName } from '@/lib/utils/helpers';
+import { getPlayerDisplayName, isGoalkeeper } from '@/lib/utils/helpers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -22,6 +22,7 @@ import { BackButton } from '@/components/ui/BackButton';
 import { PlayerMatchList } from '@/components/players/PlayerMatchList';
 import { EditPlayerModal } from '@/components/players/EditPlayerModal';
 import { PlayerCardModal } from '@/components/players/PlayerCardModal';
+import { PlayerGoalkeeperStatsCard } from '@/components/players/PlayerGoalkeeperStatsCard';
 import { calculatePlayerRating } from '@/lib/utils/rating';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import type { Metadata } from 'next';
@@ -193,6 +194,13 @@ export default async function PlayerDetailPage({
             Este jugador aún no tiene estadísticas. ¡Empezá a cargar partidos!
           </p>
         </Card>
+      )}
+
+      {/* Goalkeeper Stats Section */}
+      {stats && (isGoalkeeper(player.position) || (stats.matches_as_gk ?? 0) > 0) && (
+        <div className="mt-6">
+          <PlayerGoalkeeperStatsCard stats={stats} />
+        </div>
       )}
 
       {/* Match List */}

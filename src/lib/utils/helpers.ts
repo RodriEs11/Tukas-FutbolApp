@@ -46,6 +46,33 @@ export function getInitials(player: UserProfile): string {
 }
 
 /**
+ * Points awarded to goalkeepers based on goals conceded in a match:
+ * 0 goals -> 10 pts
+ * 1 goal  -> 8 pts
+ * 2 goals -> 6 pts
+ * 3 goals -> 4 pts
+ * 4 goals -> 2 pts
+ * 5+ goals -> 0 pts
+ */
+export function getGoalkeeperMatchPoints(goalsConceded: number): number {
+  if (goalsConceded <= 0) return 10;
+  if (goalsConceded === 1) return 8;
+  if (goalsConceded === 2) return 6;
+  if (goalsConceded === 3) return 4;
+  if (goalsConceded === 4) return 2;
+  return 0;
+}
+
+/**
+ * Check if a player profile indicates a goalkeeper position
+ */
+export function isGoalkeeper(position?: string | null): boolean {
+  if (!position) return false;
+  const norm = position.toLowerCase().trim();
+  return norm === 'arquero' || norm === 'portero' || norm === 'goalkeeper';
+}
+
+/**
  * Calculate stats for a single player from match data
  */
 export function calculatePlayerStats(
@@ -63,6 +90,12 @@ export function calculatePlayerStats(
   let losses = 0;
   let goals = 0;
 
+  // Goalkeeper specific accumulators
+  let matchesAsGk = 0;
+  let goalsConceded = 0;
+  let cleanSheets = 0;
+  let totalGkPoints = 0;
+
   playerMatches.forEach((mp) => {
     const match = matches.find((m) => m.id === mp.match_id);
     if (!match || match.status !== 'played') return;
@@ -76,7 +109,29 @@ export function calculatePlayerStats(
     if (playerTeamScore > opponentScore) wins++;
     else if (playerTeamScore === opponentScore) draws++;
     else losses++;
+
+    // Calculate GK stats if the player played as goalkeeper in this match
+    if (mp.pitch_position === 'gk') {
+      matchesAsGk++;
+      const conceded = opponentScore || 0;
+      goalsConceded += conceded;
+      if (conceded === 0) {
+        cleanSheets++;
+      }
+      totalGkPoints += getGoalkeeperMatchPoints(conceded);
+    }
   });
+
+  const cleanSheetPointsAvg =
+    matchesAsGk > 0 ? Number((totalGkPoints / matchesAsGk).toFixed(1)) : 0;
+  const averageGoalsConceded =
+    matchesAsGk > 0 ? Number((goalsConceded / matchesAsGk).toFixed(2)) : 0;
+  const cleanSheetPercentage =
+    matchesAsGk > 0 ? Math.round((cleanSheets / matchesAsGk) * 100) : 0;
+
+  const totalPlayedMatches = matches.filter((m) => m.status === 'played').length;
+  const minGkMatchesRequired = Math.max(3, Math.ceil(totalPlayedMatches * 0.3));
+  const isGkEligible = matchesAsGk >= minGkMatchesRequired;
 
   return {
     player,
@@ -86,6 +141,14 @@ export function calculatePlayerStats(
     draws,
     losses,
     points: wins * POINTS.WIN + draws * POINTS.DRAW + losses * POINTS.LOSS,
+    matches_as_gk: matchesAsGk,
+    goals_conceded: goalsConceded,
+    clean_sheets: cleanSheets,
+    clean_sheet_points_avg: cleanSheetPointsAvg,
+    average_goals_conceded: averageGoalsConceded,
+    clean_sheet_percentage: cleanSheetPercentage,
+    is_gk_eligible: isGkEligible,
+    min_gk_matches_required: minGkMatchesRequired,
   };
 }
 
