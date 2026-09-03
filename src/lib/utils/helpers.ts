@@ -92,6 +92,7 @@ export function calculatePlayerStats(
 
   // Goalkeeper specific accumulators
   let matchesAsGk = 0;
+  let goalsConceded = 0;
   let cleanSheets = 0;
   let totalGkPoints = 0;
 
@@ -113,6 +114,7 @@ export function calculatePlayerStats(
     if (mp.pitch_position === 'gk') {
       matchesAsGk++;
       const conceded = opponentScore || 0;
+      goalsConceded += conceded;
       if (conceded === 0) {
         cleanSheets++;
       }
@@ -122,6 +124,14 @@ export function calculatePlayerStats(
 
   const cleanSheetPointsAvg =
     matchesAsGk > 0 ? Number((totalGkPoints / matchesAsGk).toFixed(1)) : 0;
+  const averageGoalsConceded =
+    matchesAsGk > 0 ? Number((goalsConceded / matchesAsGk).toFixed(2)) : 0;
+  const cleanSheetPercentage =
+    matchesAsGk > 0 ? Math.round((cleanSheets / matchesAsGk) * 100) : 0;
+
+  const totalPlayedMatches = matches.filter((m) => m.status === 'played').length;
+  const minGkMatchesRequired = Math.max(3, Math.ceil(totalPlayedMatches * 0.3));
+  const isGkEligible = matchesAsGk >= minGkMatchesRequired;
 
   return {
     player,
@@ -132,8 +142,13 @@ export function calculatePlayerStats(
     losses,
     points: wins * POINTS.WIN + draws * POINTS.DRAW + losses * POINTS.LOSS,
     matches_as_gk: matchesAsGk,
+    goals_conceded: goalsConceded,
     clean_sheets: cleanSheets,
     clean_sheet_points_avg: cleanSheetPointsAvg,
+    average_goals_conceded: averageGoalsConceded,
+    clean_sheet_percentage: cleanSheetPercentage,
+    is_gk_eligible: isGkEligible,
+    min_gk_matches_required: minGkMatchesRequired,
   };
 }
 

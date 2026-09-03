@@ -102,7 +102,7 @@ export function PlayerCard({ player, stats, rating }: PlayerCardProps) {
             </div>
             <div className="player-card-stat" title="Arcos en cero">
               <span className="player-card-stat-value">{arcosEnCero}</span>
-              <span className="player-card-stat-label">ARC</span>
+              <span className="player-card-stat-label">0 GOL</span>
             </div>
             <div className="player-card-stat" title="Porcentaje de victorias">
               <span className="player-card-stat-value">{winRate}%</span>

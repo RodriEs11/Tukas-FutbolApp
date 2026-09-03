@@ -98,8 +98,12 @@ describe('Helpers', () => {
 
       const stats = calculatePlayerStats(goalkeeper, matches, matchPlayers);
       expect(stats.matches_as_gk).toBe(5);
+      expect(stats.goals_conceded).toBe(6); // 0 + 1 + 2 + 0 + 3 = 6
+      expect(stats.average_goals_conceded).toBe(1.2); // 6 / 5 = 1.2
       expect(stats.clean_sheets).toBe(2);
+      expect(stats.clean_sheet_percentage).toBe(40); // 2/5 * 100 = 40%
       expect(stats.clean_sheet_points_avg).toBe(7.6);
+      expect(stats.is_gk_eligible).toBe(true);
     });
 
     it('debería asignar 0 puntos si recibe 5 o más goles y 2 puntos con 4 goles', () => {
