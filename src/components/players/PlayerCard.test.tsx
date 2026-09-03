@@ -68,8 +68,43 @@ describe('PlayerCard', () => {
     expect(screen.getByText('--')).toBeDefined();
   });
 
-  it('Muestra marca "⚽ TUKAS"', () => {
+  it('Muestra marca "TUKAS"', () => {
     render(<PlayerCard player={mockPlayer as any} stats={mockStats as any} rating={99} />);
-    expect(screen.getByText('⚽ TUKAS')).toBeDefined();
+    expect(screen.getByText('TUKAS')).toBeDefined();
+  });
+
+  it('Muestra estadísticas de arquero (VMV y ARC) si la posición es Arquero', () => {
+    const gkPlayer = {
+      ...mockPlayer,
+      position: 'Arquero',
+    };
+    const gkStats = {
+      ...mockStats,
+      matches_as_gk: 5,
+      clean_sheets: 2,
+      clean_sheet_points_avg: 7.6,
+    };
+    render(<PlayerCard player={gkPlayer as any} stats={gkStats as any} rating={70} />);
+
+    // Verifica que aparezca VMV y ARC
+    expect(screen.getByText('VMV')).toBeDefined();
+    expect(screen.getByText('7.6')).toBeDefined();
+    expect(screen.getByText('ARC')).toBeDefined();
+    expect(screen.getByText('2')).toBeDefined();
+
+    // No debe mostrar la etiqueta GOL
+    expect(screen.queryByText('GOL')).toBeNull();
+  });
+
+  it('Muestra 0.0 en VMV para arquero sin partidos o sin puntos', () => {
+    const gkPlayer = {
+      ...mockPlayer,
+      position: 'Arquero',
+    };
+    render(<PlayerCard player={gkPlayer as any} stats={null} rating={null} />);
+    expect(screen.getByText('VMV')).toBeDefined();
+    expect(screen.getByText('0.0')).toBeDefined();
+    expect(screen.getByText('ARC')).toBeDefined();
+    expect(screen.getAllByText('0').length).toBeGreaterThanOrEqual(1);
   });
 });

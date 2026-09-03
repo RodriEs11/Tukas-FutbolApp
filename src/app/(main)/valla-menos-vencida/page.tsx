@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 
 export const metadata = {
   title: 'Valla Menos Vencida | Tukas',
-  description: 'Ranking de la valla menos vencida. Se prioriza el menor promedio de gol, vallas invictas (VI) y regularidad (PJ).',
+  description: 'Ranking de la valla menos vencida. Se prioriza el menor promedio de gol (PROM), vallas invictas (VI), goles recibidos (GR) y regularidad (PJ).',
 };
 
 // Next.js dynamic rendering
@@ -24,7 +24,7 @@ async function GoalkeepersContent() {
           <span>🧤</span>
         </h2>
         <p className="text-muted-foreground text-xs sm:text-sm max-w-xl">
-          Ranking de la valla menos vencida. Se prioriza el menor promedio de gol, vallas invictas (VI: partidos con 0 goles recibidos) y regularidad (PJ). Requiere un mínimo del 30% de los partidos del torneo (mínimo actual: {minMatches} PJ) para figurar en el ranking oficial.
+          Ranking de la valla menos vencida. Se prioriza el menor promedio de gol (PROM), vallas invictas (VI: partidos con 0 goles recibidos), menor cantidad de goles recibidos (GR) y regularidad (PJ). Requiere un mínimo del 30% de los partidos del torneo (mínimo actual: {minMatches} PJ) para figurar en el ranking oficial.
         </p>
       </div>
 

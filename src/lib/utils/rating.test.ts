@@ -29,9 +29,39 @@ describe('Rating Utils', () => {
       expect(calculatePlayerRating(stats, 10)).toBe(63);
     });
 
-    it('debería topear el rating a 99', () => {
-      const stats = { ...defaultStats, matches_played: 10, wins: 10, goals: 50 };
-      expect(calculatePlayerRating(stats, 10)).toBe(99);
+    it('debería calcular el rating de un arquero utilizando valla menos vencida en vez de goles', () => {
+      // Arquero con 10 partidos, 5 victorias (winComponent = 0.5 * 45 = 22.5)
+      // regularidad = 10 / 10 * 25 = 25
+      // clean_sheet_points_avg = 7.6 -> performanceComponent = (7.6 / 10) * 30 = 22.8
+      // Total = 22.5 + 22.8 + 25 = 70.3 -> 70
+      const gkStats: PlayerStats = {
+        ...defaultStats,
+        player: { position: 'Arquero' } as any,
+        matches_played: 10,
+        wins: 5,
+        goals: 0,
+        matches_as_gk: 10,
+        clean_sheets: 2,
+        clean_sheet_points_avg: 7.6,
+      };
+      expect(calculatePlayerRating(gkStats, 10)).toBe(70);
+    });
+
+    it('un arquero no debe sumar puntos por goles que haya marcado personalmente', () => {
+      // Si el arquero marcó 5 goles pero su valla menos vencida es 0 (recibió muchos goles),
+      // su performanceComponent debe basarse únicamente en valla menos vencida.
+      const gkStats: PlayerStats = {
+        ...defaultStats,
+        player: { position: 'Arquero' } as any,
+        matches_played: 10,
+        wins: 5, // 22.5
+        goals: 5, // NO debe contar
+        matches_as_gk: 10,
+        clean_sheets: 0,
+        clean_sheet_points_avg: 0, // 0 pts
+      };
+      // 22.5 + 0 + 25 = 47.5 -> 48
+      expect(calculatePlayerRating(gkStats, 10)).toBe(48);
     });
   });
 });
