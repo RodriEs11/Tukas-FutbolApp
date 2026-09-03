@@ -67,6 +67,10 @@ export interface PlayerStats {
   draws: number;
   losses: number;
   points: number;
+  // Campos específicos para arqueros
+  matches_as_gk?: number;
+  clean_sheets?: number;
+  clean_sheet_points_avg?: number;
 }
 
 export interface ScorerStat {

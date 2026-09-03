@@ -1,4 +1,5 @@
 import type { PlayerStats } from '@/lib/types/database';
+import { isGoalkeeper } from './helpers';
 
 export const RATING_MIN_MATCHES = 3;
 
@@ -101,6 +102,8 @@ export function getCardTier(rating: number | null): CardTierInfo {
 
 /**
  * Calculates a player's rating (media) for FIFA-style player cards based on their stats.
+ * For field players: uses goals per match.
+ * For goalkeepers: uses 'valla menos vencida' (clean sheet points average).
  *
  * @param stats Player statistics
  * @param maxMatchesInGroup The maximum number of matches played by any player in the group/league
@@ -117,13 +120,22 @@ export function calculatePlayerRating(
   const winRate = stats.wins / stats.matches_played;
   const winComponent = winRate * 45;
 
-  const golesPerMatch = stats.goals / stats.matches_played;
-  const goalComponent = Math.min(golesPerMatch * 15, 30);
-
   const regularidad = stats.matches_played / maxMatchesInGroup;
   const regularityComponent = regularidad * 25;
 
-  const rawRating = winComponent + goalComponent + regularityComponent;
+  let performanceComponent: number;
+
+  if (isGoalkeeper(stats.player?.position)) {
+    // Para arqueros: Valla menos vencida (0 a 10 puntos) escala a max 30 puntos en la media (puntos * 3)
+    const vallaMenosVencida = stats.clean_sheet_points_avg ?? 0;
+    performanceComponent = Math.min((vallaMenosVencida / 10) * 30, 30);
+  } else {
+    // Para jugadores de campo: sistema actual de goles por partido
+    const golesPerMatch = stats.goals / stats.matches_played;
+    performanceComponent = Math.min(golesPerMatch * 15, 30);
+  }
+
+  const rawRating = winComponent + performanceComponent + regularityComponent;
 
   return Math.max(1, Math.min(99, Math.round(rawRating)));
 }
