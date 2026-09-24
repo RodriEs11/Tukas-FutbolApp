@@ -30,6 +30,7 @@ function mockQueryBuilder(resolvedValue: { data: unknown; error: unknown }) {
   const chainMethods = ['select', 'insert', 'update', 'delete', 'eq', 'order', 'in', 'filter', 'limit', 'single', 'maybeSingle'];
   chainMethods.forEach(m => { builder[m] = vi.fn().mockReturnValue(builder); });
   builder.single = vi.fn().mockResolvedValue(resolvedValue);
+  builder.maybeSingle = vi.fn().mockResolvedValue(resolvedValue);
   const p = Promise.resolve(resolvedValue);
   builder.then = p.then.bind(p);
   builder.catch = p.catch.bind(p);
@@ -230,21 +231,105 @@ describe('matches actions', () => {
   });
 
   describe('deleteMatch', () => {
-    it('debería eliminar el partido', async () => {
-      const builder = mockQueryBuilder({ data: null, error: null });
+    it('debería retornar error si no hay usuario autenticado', async () => {
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockReturnValue(builder),
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: null } }) },
+      });
+
+      const result = await deleteMatch('1');
+      expect(result).toEqual({ error: 'No autorizado' });
+    });
+
+    it('debería retornar error si el usuario no es admin', async () => {
+      const mockUser = { id: 'user1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'player' }, error: null });
+
+      (createClient as any).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => table === 'user_profiles' ? builderProfile : null,
+      });
+
+      const result = await deleteMatch('1');
+      expect(result).toEqual({ error: 'Permisos insuficientes para eliminar partidos' });
+    });
+
+    it('debería retornar error si el partido no se encuentra', async () => {
+      const mockUser = { id: 'admin1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'admin' }, error: null });
+      const builderMatch = mockQueryBuilder({ data: null, error: new Error('not found') });
+
+      (createClient as any).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => table === 'user_profiles' ? builderProfile : builderMatch,
+      });
+
+      const result = await deleteMatch('1');
+      expect(result).toEqual({ error: 'Partido no encontrado' });
+    });
+
+    it('debería retornar error si el partido ya fue jugado', async () => {
+      const mockUser = { id: 'admin1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'admin' }, error: null });
+      const builderMatch = mockQueryBuilder({ data: { status: 'played' }, error: null });
+
+      (createClient as any).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => table === 'user_profiles' ? builderProfile : builderMatch,
+      });
+
+      const result = await deleteMatch('1');
+      expect(result).toEqual({ error: 'No se pueden eliminar partidos que ya fueron jugados' });
+    });
+
+    it('debería eliminar el partido con éxito si es admin y está programado', async () => {
+      const mockUser = { id: 'admin1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'admin' }, error: null });
+      const builderMatch = mockQueryBuilder({ data: { status: 'scheduled' }, error: null });
+
+      (createClient as any).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => table === 'user_profiles' ? builderProfile : builderMatch,
       });
 
       const result = await deleteMatch('1');
       expect(result).toEqual({ success: true });
       expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/1');
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
     });
 
-    it('debería retornar error si falla la eliminación', async () => {
-      const builder = mockQueryBuilder({ data: null, error: new Error('delete error') });
+    it('debería eliminar el partido con éxito si es admin y está cancelado', async () => {
+      const mockUser = { id: 'admin1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'admin' }, error: null });
+      const builderMatch = mockQueryBuilder({ data: { status: 'cancelled' }, error: null });
+
       (createClient as any).mockResolvedValue({
-        from: vi.fn().mockReturnValue(builder),
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => table === 'user_profiles' ? builderProfile : builderMatch,
+      });
+
+      const result = await deleteMatch('1');
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/1');
+      expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
+    });
+
+    it('debería retornar error si falla la eliminación en la base de datos', async () => {
+      const mockUser = { id: 'admin1' };
+      const builderProfile = mockQueryBuilder({ data: { role: 'admin' }, error: null });
+      
+      let matchCallCount = 0;
+      const builderMatchStatus = mockQueryBuilder({ data: { status: 'cancelled' }, error: null });
+      const builderMatchDelete = mockQueryBuilder({ data: null, error: new Error('delete error') });
+
+      (createClient as any).mockResolvedValue({
+        auth: { getUser: vi.fn().mockResolvedValue({ data: { user: mockUser } }) },
+        from: (table: string) => {
+          if (table === 'user_profiles') return builderProfile;
+          matchCallCount++;
+          return matchCallCount === 1 ? builderMatchStatus : builderMatchDelete;
+        },
       });
 
       const result = await deleteMatch('1');
