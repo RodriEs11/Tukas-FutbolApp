@@ -179,6 +179,35 @@ export async function updateMatchDate(id: string, matchDate: string) {
 export async function deleteMatch(id: string) {
   const supabase = await createClient();
 
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return { error: 'No autorizado' };
+  }
+
+  const { data: profile } = await supabase
+    .from('user_profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+
+  if (profile?.role !== 'admin') {
+    return { error: 'Permisos insuficientes para eliminar partidos' };
+  }
+
+  const { data: match, error: fetchError } = await supabase
+    .from('matches')
+    .select('status')
+    .eq('id', id)
+    .single();
+
+  if (fetchError || !match) {
+    return { error: 'Partido no encontrado' };
+  }
+
+  if (match.status === 'played') {
+    return { error: 'No se pueden eliminar partidos que ya fueron jugados' };
+  }
+
   const { error } = await supabase.from('matches').delete().eq('id', id);
 
   if (error) {
@@ -186,6 +215,7 @@ export async function deleteMatch(id: string) {
   }
 
   revalidatePath('/matches');
+  revalidatePath('/dashboard');
   return { success: true };
 }
 

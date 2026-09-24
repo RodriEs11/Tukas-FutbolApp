@@ -9,6 +9,7 @@ import { CalendarPlus, MapPin, Users, Trophy, CalendarX } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { CancelMatchButton } from './CancelMatchButton';
+import { DeleteMatchButton } from '@/components/matches/DeleteMatchButton';
 import { MatchFilters } from '@/components/matches/MatchFilters';
 import { MatchPagination } from '@/components/matches/MatchPagination';
 
@@ -161,9 +162,12 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                         <Badge variant={getStatusVariant(match.status)}>
                           {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
                         </Badge>
-                        {isAdmin && match.status === 'scheduled' && (
-                          <div className="ml-auto z-10 relative">
-                            <CancelMatchButton matchId={match.id} />
+                        {isAdmin && match.status !== 'played' && (
+                          <div className="ml-auto z-10 relative flex items-center gap-1">
+                            {match.status === 'scheduled' && (
+                              <CancelMatchButton matchId={match.id} />
+                            )}
+                            <DeleteMatchButton matchId={match.id} />
                           </div>
                         )}
                       </div>
