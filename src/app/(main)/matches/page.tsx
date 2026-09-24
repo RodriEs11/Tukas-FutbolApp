@@ -9,7 +9,6 @@ import { CalendarPlus, MapPin, Users, Trophy, CalendarX } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { CancelMatchButton } from './CancelMatchButton';
-import { DeleteMatchButton } from '@/components/matches/DeleteMatchButton';
 import { MatchFilters } from '@/components/matches/MatchFilters';
 import { MatchPagination } from '@/components/matches/MatchPagination';
 
@@ -153,28 +152,24 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
         <>
           <div className="space-y-3 animate-slide-up">
             {paginatedMatches.map((match) => (
-              <Card key={match.id} className="mb-3 hover:border-border-hover hover:bg-card/90 transition-all duration-200">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex-1 min-w-0">
-                    {/* Status + Admin Actions */}
-                    <div className="flex items-center gap-2 mb-2">
-                      <Badge variant={getStatusVariant(match.status)}>
-                        {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
-                      </Badge>
-                      {isAdmin && match.status !== 'played' && (
-                        <div className="ml-auto flex items-center gap-1">
-                          {match.status === 'scheduled' && (
+              <Link key={match.id} href={`/matches/${match.id}`}>
+                <Card variant="interactive" className="mb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      {/* Status + Date */}
+                      <div className="flex items-center gap-2 mb-2">
+                        <Badge variant={getStatusVariant(match.status)}>
+                          {MATCH_STATUS_LABELS[match.status as keyof typeof MATCH_STATUS_LABELS]}
+                        </Badge>
+                        {isAdmin && match.status === 'scheduled' && (
+                          <div className="ml-auto z-10 relative">
                             <CancelMatchButton matchId={match.id} />
-                          )}
-                          <DeleteMatchButton matchId={match.id} redirectTo="/matches" />
-                        </div>
-                      )}
-                    </div>
+                          </div>
+                        )}
+                      </div>
 
-                    {/* Clickable Match Details */}
-                    <Link href={`/matches/${match.id}`} className="block group">
                       {/* Date & Time */}
-                      <p className="text-sm font-semibold text-foreground group-hover:text-accent transition-colors">
+                      <p className="text-sm font-semibold text-foreground">
                         {formatDateTime(match.match_date)}
                       </p>
 
@@ -198,23 +193,23 @@ export default async function MatchesPage({ searchParams }: MatchesPageProps) {
                           </span>
                         </div>
                       )}
-                    </Link>
-                  </div>
+                    </div>
 
-                  {/* Score */}
-                  {match.status === 'played' && (
-                    <Link href={`/matches/${match.id}`} className="shrink-0 flex items-center gap-1.5 bg-muted hover:bg-muted/80 rounded-xl px-3 py-2 transition-colors">
-                      <span className="text-lg font-bold text-foreground">
-                        {match.score_team_a}
-                      </span>
-                      <span className="text-xs text-muted-foreground">-</span>
-                      <span className="text-lg font-bold text-foreground">
-                        {match.score_team_b}
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              </Card>
+                    {/* Score */}
+                    {match.status === 'played' && (
+                      <div className="flex items-center gap-1.5 bg-muted rounded-xl px-3 py-2 shrink-0">
+                        <span className="text-lg font-bold text-foreground">
+                          {match.score_team_a}
+                        </span>
+                        <span className="text-xs text-muted-foreground">-</span>
+                        <span className="text-lg font-bold text-foreground">
+                          {match.score_team_b}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </Link>
             ))}
           </div>
 

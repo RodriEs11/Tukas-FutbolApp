@@ -5,7 +5,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { getMatch } from '@/lib/actions/matches';
 import { formatDateTime, getPlayerDisplayName } from '@/lib/utils/helpers';
 import { MATCH_STATUS_LABELS, TEAM_LABELS } from '@/lib/utils/constants';
-import { redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import {
   MapPin,
   CalendarDays,
@@ -25,7 +25,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const match = await getMatch(id);
-  if (!match) return { title: 'Partidos' };
+  if (!match) return { title: 'Partido no encontrado' };
   return { title: `Partido — ${formatDateTime(match.match_date)}` };
 }
 
@@ -39,9 +39,7 @@ export default async function MatchDetailPage({
   const { id } = await params;
   const match = await getMatch(id);
 
-  if (!match) {
-    redirect('/matches');
-  }
+  if (!match) notFound();
 
   const currentUser = await getCurrentUser();
   const isAdmin = currentUser?.role === 'admin';
