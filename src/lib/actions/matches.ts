@@ -80,7 +80,7 @@ export async function getMatch(id: string): Promise<Match | null> {
       )
     `)
     .eq('id', id)
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error('Error fetching match:', error);
@@ -215,6 +215,7 @@ export async function deleteMatch(id: string) {
   }
 
   revalidatePath('/matches');
+  revalidatePath(`/matches/${id}`);
   revalidatePath('/dashboard');
   return { success: true };
 }

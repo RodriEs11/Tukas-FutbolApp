@@ -30,6 +30,7 @@ function mockQueryBuilder(resolvedValue: { data: unknown; error: unknown }) {
   const chainMethods = ['select', 'insert', 'update', 'delete', 'eq', 'order', 'in', 'filter', 'limit', 'single', 'maybeSingle'];
   chainMethods.forEach(m => { builder[m] = vi.fn().mockReturnValue(builder); });
   builder.single = vi.fn().mockResolvedValue(resolvedValue);
+  builder.maybeSingle = vi.fn().mockResolvedValue(resolvedValue);
   const p = Promise.resolve(resolvedValue);
   builder.then = p.then.bind(p);
   builder.catch = p.catch.bind(p);
@@ -293,6 +294,7 @@ describe('matches actions', () => {
       const result = await deleteMatch('1');
       expect(result).toEqual({ success: true });
       expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/1');
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
     });
 
@@ -309,6 +311,7 @@ describe('matches actions', () => {
       const result = await deleteMatch('1');
       expect(result).toEqual({ success: true });
       expect(revalidatePath).toHaveBeenCalledWith('/matches');
+      expect(revalidatePath).toHaveBeenCalledWith('/matches/1');
       expect(revalidatePath).toHaveBeenCalledWith('/dashboard');
     });
 

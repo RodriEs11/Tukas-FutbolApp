@@ -16,7 +16,7 @@ interface DeleteMatchButtonProps {
 
 export function DeleteMatchButton({
   matchId,
-  redirectTo,
+  redirectTo = '/matches',
   variant = 'icon',
   className = '',
 }: DeleteMatchButtonProps) {
@@ -42,11 +42,8 @@ export function DeleteMatchButton({
         setIsLoading(false);
       } else {
         setIsOpen(false);
-        if (redirectTo) {
-          router.push(redirectTo);
-        } else {
-          router.refresh();
-        }
+        router.push(redirectTo);
+        router.refresh();
       }
     } catch (err) {
       console.error('Error al eliminar el partido:', err);
