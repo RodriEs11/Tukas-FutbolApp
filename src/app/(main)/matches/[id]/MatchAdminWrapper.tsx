@@ -3,16 +3,16 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Button } from '@/components/ui/Button';
-import { Pencil, X, CheckCircle2 } from 'lucide-react';
+import { Pencil, X, CheckCircle2, MapPin, CalendarDays, Edit3 } from 'lucide-react';
 import { FinishMatchButton } from './FinishMatchButton';
 import { GraphicalLineupAdmin } from './GraphicalLineupAdmin';
 import { MatchRosters } from './MatchRosters';
 import { finishMatch } from '@/lib/actions/matches';
 import { TEAM_LABELS, MATCH_STATUS_LABELS } from '@/lib/utils/constants';
 import { Badge } from '@/components/ui/Badge';
-import { MapPin, CalendarDays, Edit3 } from 'lucide-react';
 import { formatDateTime } from '@/lib/utils/helpers';
 import { EditMatchDateModal } from '@/components/matches/EditMatchDateModal';
+import { DeleteMatchButton } from '@/components/matches/DeleteMatchButton';
 import type { Match, MatchPlayer, UserProfile } from '@/lib/types/database';
 
 function getStatusVariant(status: string) {
@@ -179,9 +179,9 @@ export function MatchAdminWrapper({
           </Button>
         </div>
 
-        {/* Edit Match Button */}
+        {/* Edit & Delete Match Buttons */}
         {isAdmin && (
-          <div className="absolute right-0 flex items-center animate-fade-in">
+          <div className="absolute right-0 flex items-center gap-1.5 animate-fade-in">
             <Button 
               variant="secondary" 
               size="sm" 
@@ -217,6 +217,14 @@ export function MatchAdminWrapper({
                 </>
               )}
             </Button>
+
+            {match.status !== 'played' && (
+              <DeleteMatchButton
+                matchId={match.id}
+                redirectTo="/matches"
+                variant="icon"
+              />
+            )}
           </div>
         )}
       </div>

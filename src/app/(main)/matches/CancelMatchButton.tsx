@@ -33,7 +33,7 @@ export function CancelMatchButton({ matchId }: { matchId: string }) {
     <button
       onClick={handleCancel}
       disabled={isPending}
-      className="p-2 text-red-500 hover:bg-red-500/10 rounded-full transition-colors disabled:opacity-50"
+      className="p-2 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 rounded-full transition-colors disabled:opacity-50"
       title="Cancelar Partido"
     >
       <Ban size={18} />
